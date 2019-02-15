@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HiEIS.Data\HiEIS.Data.csproj" />
+    <ProjectReference Include="..\HiEIS.Model\HiEIS.Model.csproj" />
+  </ItemGroup>
+
+</Project>
