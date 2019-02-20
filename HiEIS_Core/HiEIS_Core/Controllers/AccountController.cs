@@ -39,7 +39,7 @@ namespace HiEIS_Core.Controllers
         [HttpGet("Company/{companyId}/Staffs")]
         public ActionResult GetStaff(Guid companyId , int index = 1, int pageSize = 5 )
         {
-            var list = _staffService.GetStaffs(_ => _.CompanyId.Equals(companyId));
+            var list = _staffService.GetStaffs(_ => _.CompanyId.Equals(companyId)); 
             var result  = list.ToPageList<StaffVM, Staff>(index, pageSize);
             foreach (var item in result.List)
             {
@@ -108,7 +108,6 @@ namespace HiEIS_Core.Controllers
                 staff.MyUser.PhoneNumber = model.PhoneNumber;
                 staff.MyUser.Email = model.Email;
 
-                _staffService.UpdateStaff(staff);
                 _staffService.SaveChanges();
                 if (model.Roles.Count > 0)
                 {
@@ -127,6 +126,7 @@ namespace HiEIS_Core.Controllers
                 return BadRequest(e.Message);
             }
         }
+
 
     }
 
