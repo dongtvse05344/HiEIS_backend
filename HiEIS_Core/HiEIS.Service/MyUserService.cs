@@ -12,6 +12,7 @@ namespace HiEIS.Service
     public interface IMyUserService
     {
         IQueryable<MyUser> GetMyUsers(Expression<Func<MyUser, bool>> where);
+        
         MyUser GetMyUser(string id);
         void SaveChanges();
     }
@@ -35,7 +36,7 @@ namespace HiEIS.Service
         {
             return _repository.GetMany(where);
         }
-
+       
         public void SaveChanges()
         {
             _unitOfWork.Commit();

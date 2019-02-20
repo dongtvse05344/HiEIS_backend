@@ -68,7 +68,6 @@ namespace HiEIS_Core
             services.AddTransient<ICompanyService, CompanyService>();
             #endregion
 
-
             #region Identity
             services.AddAuthorization();
             var authBuilder = services.AddIdentityCore<MyUser>(o =>
@@ -174,7 +173,7 @@ namespace HiEIS_Core
                 settings.GeneratorSettings.DefaultPropertyNameHandling =
                     PropertyNameHandling.CamelCase;
 
-                settings.GeneratorSettings.Title = "Casual Work API";
+                settings.GeneratorSettings.Title = "HDDT API";
 
                 settings.GeneratorSettings.OperationProcessors.Add(new OperationSecurityScopeProcessor("Bearer"));
 

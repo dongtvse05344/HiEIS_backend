@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HiEIS.Data.Migrations
 {
     [DbContext(typeof(HiEISDbContext))]
-    [Migration("20190201104337_Init")]
-    partial class Init
+    [Migration("20190220025437_dong20022019")]
+    partial class dong20022019
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -165,17 +165,12 @@ namespace HiEIS.Data.Migrations
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Address");
-
                     b.Property<string>("Code");
 
                     b.Property<Guid>("CompanyId");
 
                     b.Property<string>("Name")
                         .HasMaxLength(100);
-
-                    b.Property<string>("Tel")
-                        .HasMaxLength(50);
 
                     b.HasKey("Id");
 

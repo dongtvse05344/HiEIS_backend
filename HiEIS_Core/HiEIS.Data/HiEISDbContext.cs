@@ -51,7 +51,6 @@ namespace HiEIS.Data
             #region Staff
             builder.Entity<Staff>().Property(_ => _.Name).HasMaxLength(100);
             builder.Entity<Staff>().Property(_ => _.Name).HasMaxLength(100);
-            builder.Entity<Staff>().Property(_ => _.Tel).HasMaxLength(50);
 
             builder.Entity<MyUser>()
                 .HasOne(_ => _.Staff).WithOne(_ => _.MyUser)

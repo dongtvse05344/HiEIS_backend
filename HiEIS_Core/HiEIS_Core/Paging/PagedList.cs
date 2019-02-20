@@ -11,7 +11,7 @@ namespace HiEIS_Core.Paging
         public static PageModel<U> ToPageList<U,T>(this IQueryable<T> list,int index =1, int pageSize =5)
         {
             int total = list.Count();
-            list = list.Skip((index - 1) * pageSize).Take(pageSize);
+            list = list.Skip((index - 1) * pageSize).Take(pageSize); 
             List<T> data = list.ToList();
             List<U> result = new List<U>();
             foreach (var item in data)

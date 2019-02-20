@@ -15,8 +15,48 @@ namespace HiEIS_Core.ViewModels
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string Password { get; set; }
+    }
+    
+    public class AccountVM
+    {
+        public string Id { get; set; }
+        public bool IsActive { get; set; }
+        public string Email { get; set; }
+        public string UserName { get; set; }
+        public string PhoneNumber { get; set; }
+    }
 
-        [Display(Name = "Remember me?")]
-        public bool RememberMe { get; set; }
+    public class StaffVM
+    {
+        public string Id { get; set; }
+        public bool IsActive { get; set; }
+        public string Email { get; set; }
+        public string UserName { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Name { get; set; }
+        public string CompanyId { get; set; }
+        public string Code { get; set; }
+        public ICollection<string> Roles { get; set; }
+    }
+
+    public class StaffCM
+    {
+        public string UserName { get; set; }
+        public string Password { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string PhoneNumber { get; set; }
+        public Guid CompanyId { get; set; }
+        public string Code { get; set; }
+        public ICollection<string> Roles { get; set; }
+    }
+    public class StaffUM
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Code { get; set; }
+        public ICollection<string> Roles { get; set; }
     }
 }

@@ -163,17 +163,12 @@ namespace HiEIS.Data.Migrations
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Address");
-
                     b.Property<string>("Code");
 
                     b.Property<Guid>("CompanyId");
 
                     b.Property<string>("Name")
                         .HasMaxLength(100);
-
-                    b.Property<string>("Tel")
-                        .HasMaxLength(50);
 
                     b.HasKey("Id");
 

@@ -28,9 +28,18 @@ namespace HiEIS_Core.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetAll(int index = 1, int pageSize = 5)
+        public ActionResult GetAll(string name, string taxNo, string address, string tel, int index = 1, int pageSize = 5)
         {
+            name = name != null ? name : "";
+            address = address != null ? address : "";
+            tel = tel != null ? tel : "";
+            taxNo = taxNo != null ? taxNo : "";
+
             var list = _companyService.GetCompanys();
+            list = list.Where(_ => _.Name.Contains(name)
+                                    && _.TaxNo.Contains(taxNo)
+                                    && _.Address.Contains(address)
+                                    && _.Tel.Contains(tel));
             var result = list.ToPageList<CompanyVM, Company>(index, pageSize);
             return Ok(result);
         }
