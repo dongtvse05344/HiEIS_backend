@@ -36,10 +36,17 @@ namespace HiEIS_Core.Controllers
             return Ok(result);
         }
 
-        [HttpGet("Company/{companyId}/Staffs")]
-        public ActionResult GetStaff(Guid companyId , int index = 1, int pageSize = 5 )
+        [HttpGet("Company/{companyId}/Staff")]
+        public ActionResult GetStaff(Guid companyId , int index = 1, int pageSize = 5, string name ="", string username = "", string email = "")
         {
-            var list = _staffService.GetStaffs(_ => _.CompanyId.Equals(companyId)); 
+            name = name != null ? name : "";
+            username = username != null ? username : "";
+            email = email != null ? email : "";
+            var list = _staffService.GetStaffs(_ => _.CompanyId.Equals(companyId));
+            list = list.Where(_ => _.Name.Contains(name)
+                                    && _.MyUser.UserName.Contains(username)
+                                    && _.MyUser.Email.Contains(email));
+
             var result  = list.ToPageList<StaffVM, Staff>(index, pageSize);
             foreach (var item in result.List)
             {
@@ -50,7 +57,7 @@ namespace HiEIS_Core.Controllers
             return Ok(result);
         }
 
-        [HttpGet("Staffs/{staffId}")]
+        [HttpGet("Staff/{staffId}")]
         public ActionResult GetStaffById(string staffId)
         {
             var staff = _staffService.GetStaff(staffId);
@@ -127,6 +134,38 @@ namespace HiEIS_Core.Controllers
             }
         }
 
+        [HttpDelete("Staff/{id}")]
+        public async Task< ActionResult >DeleteStaff(string id)
+        {
+            try
+            {
+                var staff = _staffService.GetStaff(id);
+                if (staff == null) return NotFound();
+                _userManager.DeleteAsync(_userManager.FindByIdAsync(id).Result);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPut("ToggleActive/{id}")]
+        public async Task<ActionResult> ToggleActive(string id)
+        {
+            try
+            {
+                var user = _userService.GetMyUser(id);
+                user.IsActive = !user.IsActive;
+                _userService.SaveChanges();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+             
 
     }
 

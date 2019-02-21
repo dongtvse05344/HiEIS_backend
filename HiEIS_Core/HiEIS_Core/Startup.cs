@@ -66,6 +66,10 @@ namespace HiEIS_Core
             //Company
             services.AddTransient<ICompanyRepository, CompanyRepository>();
             services.AddTransient<ICompanyService, CompanyService>();
+            
+            //Product
+            services.AddTransient<IProductRepository, ProductRepository>();
+            services.AddTransient<IProductService, ProductService>();
             #endregion
 
             #region Identity

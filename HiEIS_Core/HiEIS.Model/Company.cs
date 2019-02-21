@@ -19,5 +19,7 @@ namespace HiEIS.Model
         public string CodeGuid { get; set; }
 
         public virtual ICollection<Staff> Staffs { get; set; }
+        public virtual ICollection<Product> Products { get; set; }
+
     }
 }
