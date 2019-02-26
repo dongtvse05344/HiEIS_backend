@@ -15,10 +15,11 @@ namespace HiEIS.Service
         IQueryable<Product> GetProducts(Expression<Func<Product,bool>> where);
         Product GetProduct(Guid id);
         void CreateProduct(Product product);
-        void UpadteProduct(Product product);
+        void UpdateProduct(Product product);
         void DeleteProduct(Product product);
         void SaveChanges();
     }
+
     public class ProductService : IProductService
     {
         private readonly IProductRepository _repository;
@@ -32,12 +33,14 @@ namespace HiEIS.Service
 
         public void CreateProduct(Product product)
         {
+            product.IsActive = true;
             _repository.Add(product);
         }
 
         public void DeleteProduct(Product product)
         {
-            _repository.Delete(product);
+            product.IsActive = false;
+            _repository.Update(product);
         }
 
         public Product GetProduct(Guid id)
@@ -60,9 +63,9 @@ namespace HiEIS.Service
             _unitOfWork.Commit();
         }
 
-        public void UpadteProduct(Product product)
+        public void UpdateProduct(Product product)
         {
-            throw new NotImplementedException();
+            _repository.Update(product);
         }
     }
 }

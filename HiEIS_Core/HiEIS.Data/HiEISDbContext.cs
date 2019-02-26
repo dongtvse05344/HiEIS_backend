@@ -17,11 +17,19 @@ namespace HiEIS.Data
         {
 
         }
-
-        public DbSet<Customer> Customers { get; set; }
+        
         public DbSet<Company> Companies { get; set; }
-        public DbSet<Staff> Staffs { get; set; }
+        public DbSet<CompanyCustomer> CompanyCustomers { get; set; }
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<CustomerProduct> CustomerProducts { get; set; }
+        public DbSet<Invoice> Invoices { get; set; }
+        public DbSet<InvoiceItem> InvoiceItems { get; set; }
         public DbSet<Product> Products { get; set; }
+        public DbSet<ProformaInvoice> ProformaInvoices { get; set; }
+        public DbSet<ProformaInvoiceItem> ProformaInvoiceItems { get; set; }
+        public DbSet<Staff> Staffs { get; set; }
+        public DbSet<Template> Templates { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
