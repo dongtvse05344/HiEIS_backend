@@ -8,7 +8,6 @@ namespace HiEIS.Model
     public class Template : BaseEntity
     {
         public string Name { get; set; }
-        public string Form { get; set; }
         public string Serial { get; set; }
         public Guid CompanyId { get; set; }
         public string FileUrl { get; set; }
@@ -19,7 +18,11 @@ namespace HiEIS.Model
         public bool IsActive { get; set; }
         public string ReleaseAnnouncementUrl { get; set; }
 
+        public string From { get; set; }
+
         [ForeignKey("CompanyId")]
         public virtual Company Company { get; set; }
+
+        public virtual ICollection<Invoice> Invoices { get; set; }
     }
 }

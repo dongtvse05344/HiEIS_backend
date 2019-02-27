@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using HiEIS.Model;
 using HiEIS.Service;
 using HiEIS_Core.Paging;
+using HiEIS_Core.Utils;
 using HiEIS_Core.ViewModels;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
@@ -15,6 +16,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using NSoup;
+using NSoup.Nodes;
+using NSoup.Parse;
 
 namespace HiEIS_Core.Controllers
 {
@@ -134,8 +138,33 @@ namespace HiEIS_Core.Controllers
         }
 
         [HttpGet("GetEnterprise")]
-        public async Task<ActionResult> GetEnterpriseInfoByTaxNo(string taxNo)
+        public ActionResult GetEnterpriseInfoByTaxNo(string taxNo)
         {
+            string url = "http://www.thongtincongty.com/search/";
+            IConnection connection = NSoupClient.Connect(url += taxNo);
+            Document document = connection.Get();
+
+            string html = document.GetElementsByClass("jumbotron").OuterHtml();
+            document = Parser.Parse(html, document.BaseUri);
+            string[] arr = html.Split("<br />");
+            
+            var company = _companyService.GetCompanys(_ => _.TaxNo.Equals(taxNo)).FirstOrDefault();
+            var companyVM = company.Adapt<CompanyVM>();
+            
+            companyVM.Name = document.Select("span").Text;
+            foreach (var item in arr)
+            {
+                if (item.Contains("Địa chỉ"))
+                {
+                    var address = item.Substring(item.IndexOf("Địa") + 9);
+                    companyVM.Address = StringUtils.Replace(address.Substring(0, address.Length - 2));
+                    break;
+                }
+            }
+            
+            return Ok(companyVM);
+
+            /*
             using (HttpClient client = new HttpClient())
             {
                 StringBuilder apiUrl = new StringBuilder("/api/company/");
@@ -154,7 +183,9 @@ namespace HiEIS_Core.Controllers
                     return Ok(info.Adapt<CompanyVM>());
                 }
             }
+            
             return NotFound();
+            */
         }
     }
 }

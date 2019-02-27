@@ -17,9 +17,8 @@ namespace HiEIS.Service
         void CreateTemplate(Template template);
         void UpdateTemplate(Template template);
         void DeleteTemplate(Template template);
-
-
     }
+
     public class TemplateService : ITemplateService
     {
         private readonly ITemplateRepository _repository;
@@ -31,14 +30,16 @@ namespace HiEIS.Service
             _unitOfWork = unitOfWork;
         }
 
-        public void CreateTemplate(Template template)
+        public void CreateTemplate( Template template)
         {
+            template.IsActive = true;
             _repository.Add(template);
         }
 
-        public void DeleteTemplate(Template template)
+        public void DeleteTemplate( Template template)
         {
-            _repository.Delete(template);
+            template.IsActive = false;
+            _repository.Update(template);
         }
 
         public Template GetTemplate(Guid id)
@@ -56,7 +57,12 @@ namespace HiEIS.Service
             return _repository.GetMany(where);
         }
 
-        public void UpdateTemplate(Template template)
+        public void SaveChanges()
+        {
+            _unitOfWork.Commit();
+        }
+
+        public void UpdateTemplate( Template template)
         {
             _repository.Update(template);
         }
