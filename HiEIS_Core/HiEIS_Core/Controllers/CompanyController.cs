@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using HiEIS.Model;
 using HiEIS.Service;
 using HiEIS_Core.Paging;
+using HiEIS_Core.Utils;
 using HiEIS_Core.ViewModels;
 using Mapster;
 using Microsoft.AspNetCore.Http;
@@ -122,7 +123,7 @@ namespace HiEIS_Core.Controllers
         }
 
         [HttpGet("GetEnterprise")]
-        public async Task<ActionResult> GetEnterpriseInfoByTaxNo(string taxNo)
+        public ActionResult GetEnterpriseInfoByTaxNo(string taxNo)
         {
             string url = "http://www.thongtincongty.com/search/";
             IConnection connection = NSoupClient.Connect(url += taxNo);
@@ -131,22 +132,21 @@ namespace HiEIS_Core.Controllers
             string html = document.GetElementsByClass("jumbotron").OuterHtml();
             document = Parser.Parse(html, document.BaseUri);
             string[] arr = html.Split("<br />");
-            var images = document.Select("img");
-
+            
             var company = _companyService.GetCompanys(_ => _.TaxNo.Equals(taxNo)).FirstOrDefault();
             var companyVM = company.Adapt<CompanyVM>();
-
             
-
             companyVM.Name = document.Select("span").Text;
-            companyVM.ActiveType = arr[0].Substring(arr[0].IndexOf("Loại"));
-            companyVM.Address = arr[2].Substring(arr[2].IndexOf("Địa"));
-            companyVM.LegalRepresentative = arr[3].Substring(arr[3].IndexOf("Đại"));
-            companyVM.LicenseDate = arr[4].Substring(arr[4].IndexOf("Ng"));
-            companyVM.ActiveDate = arr[5].Substring(arr[5].IndexOf("Ng"), arr[5].IndexOf("2017") + 4)
-                                    + "(" + document.Select("em").Text + ")";
-            companyVM.Tel = images[1].Attr("src");
-
+            foreach (var item in arr)
+            {
+                if (item.Contains("Địa chỉ"))
+                {
+                    var address = item.Substring(item.IndexOf("Địa") + 9);
+                    companyVM.Address = StringUtils.Replace(address.Substring(0, address.Length - 2));
+                    break;
+                }
+            }
+            
             return Ok(companyVM);
 
             /*

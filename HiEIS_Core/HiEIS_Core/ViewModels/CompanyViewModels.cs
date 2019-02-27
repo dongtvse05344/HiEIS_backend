@@ -16,12 +16,6 @@ namespace HiEIS_Core.ViewModels
         public string Website { get; set; }
         public string Fax { get; set; }
         public bool IsActive { get; set; }
-
-        //Not in DB, crawl from "http://www.thongtincongty.com"
-        public string ActiveType { get; set; }
-        public string LegalRepresentative { get; set; }
-        public string LicenseDate { get; set; }
-        public string ActiveDate { get; set; }
     }
 
     public class CompanyCM
