@@ -4,14 +4,16 @@ using HiEIS.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HiEIS.Data.Migrations
 {
     [DbContext(typeof(HiEISDbContext))]
-    partial class HiEISDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190227114216_dong27202019_1")]
+    partial class dong27202019_1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

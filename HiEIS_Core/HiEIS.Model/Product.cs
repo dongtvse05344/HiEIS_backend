@@ -20,8 +20,8 @@ namespace HiEIS.Model
         [ForeignKey("CompanyId")]
         public virtual Company Company { get; set; }
 
-        public virtual ICollection<InvoiceItem> InvoiceItems { get; set; }
-        public virtual ICollection<CustomerProduct> CustomerProducts { get; set; }
-        public virtual ICollection<ProformaInvoiceItem> ProformaInvoiceItems { get; set; }
+        //public virtual ICollection<InvoiceItem> InvoiceItems { get; set; }
+        //public virtual ICollection<CustomerProduct> CustomerProducts { get; set; }
+        //public virtual ICollection<ProformaInvoiceItem> ProformaInvoiceItems { get; set; }
     }
 }

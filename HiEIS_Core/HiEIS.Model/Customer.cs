@@ -15,11 +15,11 @@ namespace HiEIS.Model
         public string Bank { get; set; }
         public string BankAccountNumber { get; set; }
 
-        public virtual ICollection<ProformaInvoice> ProformaInvoices { get; set; }
-        public virtual ICollection<CompanyCustomer> CompanyCustomers { get; set; }
-        public virtual ICollection<CustomerProduct> CustomerProducts { get; set; }
-        public virtual ICollection<Transaction> Transactions { get; set; }
-        public virtual ICollection<Invoice> Invoices { get; set; }
+        //public virtual ICollection<ProformaInvoice> ProformaInvoices { get; set; }
+        //public virtual ICollection<CompanyCustomer> CompanyCustomers { get; set; }
+        //public virtual ICollection<CustomerProduct> CustomerProducts { get; set; }
+        //public virtual ICollection<Transaction> Transactions { get; set; }
+        //public virtual ICollection<Invoice> Invoices { get; set; }
         //public virtual ICollection<User> Users { get; set; }
     }
 }

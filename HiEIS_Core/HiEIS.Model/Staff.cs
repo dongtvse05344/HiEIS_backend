@@ -18,7 +18,7 @@ namespace HiEIS.Model
         public virtual MyUser MyUser { get; set; }
         //public virtual User User { get; set; }
 
-        public virtual ICollection<Invoice> Invoices { get; set; }
-        public virtual ICollection<ProformaInvoice> ProformaInvoices { get; set; }
+        //public virtual ICollection<Invoice> Invoices { get; set; }
+        //public virtual ICollection<ProformaInvoice> ProformaInvoices { get; set; }
     }
 }

@@ -23,6 +23,6 @@ namespace HiEIS.Model
         [ForeignKey("CompanyId")]
         public virtual Company Company { get; set; }
 
-        public virtual ICollection<Invoice> Invoices { get; set; }
+        //public virtual ICollection<Invoice> Invoices { get; set; }
     }
 }

@@ -21,8 +21,8 @@ namespace HiEIS.Model
         public virtual ICollection<Staff> Staffs { get; set; }
         public virtual ICollection<Product> Products { get; set; }
         public virtual ICollection<Template> Templates { get; set; }
-        public virtual ICollection<Transaction> Transactions { get; set; }
-        public virtual ICollection<CompanyCustomer> CompanyCustomers { get; set; }
+        //public virtual ICollection<Transaction> Transactions { get; set; }
+        //public virtual ICollection<CompanyCustomer> CompanyCustomers { get; set; }
 
     }
 }
