@@ -125,17 +125,19 @@ namespace HiEIS_Core.Controllers
         public async Task<ActionResult> GetEnterpriseInfoByTaxNo(string taxNo)
         {
             string url = "http://www.thongtincongty.com/search/";
-            IConnection connection = NSoupClient.Connect(url += "taxNo");
+            IConnection connection = NSoupClient.Connect(url += taxNo);
             Document document = connection.Get();
 
             string html = document.GetElementsByClass("jumbotron").OuterHtml();
             document = Parser.Parse(html, document.BaseUri);
             string[] arr = html.Split("<br />");
+            var images = document.Select("img");
 
-            var company = _companyService.GetCompanys(_ => _.TaxNo.Equals(taxNo));
+            var company = _companyService.GetCompanys(_ => _.TaxNo.Equals(taxNo)).FirstOrDefault();
             var companyVM = company.Adapt<CompanyVM>();
 
-            companyVM.Tel = document.Select("img")[1].Attr("src");
+            
+
             companyVM.Name = document.Select("span").Text;
             companyVM.ActiveType = arr[0].Substring(arr[0].IndexOf("Loại"));
             companyVM.Address = arr[2].Substring(arr[2].IndexOf("Địa"));
@@ -143,6 +145,7 @@ namespace HiEIS_Core.Controllers
             companyVM.LicenseDate = arr[4].Substring(arr[4].IndexOf("Ng"));
             companyVM.ActiveDate = arr[5].Substring(arr[5].IndexOf("Ng"), arr[5].IndexOf("2017") + 4)
                                     + "(" + document.Select("em").Text + ")";
+            companyVM.Tel = images[1].Attr("src");
 
             return Ok(companyVM);
 

@@ -30,7 +30,7 @@ namespace HiEIS.Model
         public string Bank { get; set; }
         public string Note { get; set; }
         public Guid TemplateId { get; set; }
-        public Guid StaffId { get; set; }
+        public string StaffId { get; set; }
         public Guid CustomerId { get; set; }
         public Guid CodeGuid { get; set; }
 
@@ -41,6 +41,6 @@ namespace HiEIS.Model
         [ForeignKey("TemplateId")]
         public virtual Customer Customer { get; set; }
 
-        public virtual ICollection<Invoice> Invoices { get; set; }
+        public virtual ICollection<InvoiceItem> InvoiceItems { get; set; }
     }
 }

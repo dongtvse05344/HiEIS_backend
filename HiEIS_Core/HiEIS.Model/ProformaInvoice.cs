@@ -16,7 +16,7 @@ namespace HiEIS.Model
         public float VATAmount { get; set; }
         public float TotalNoLiabilities { get; set; }
         public float Total { get; set; }
-        public Guid StaffId { get; set; }
+        public string StaffId { get; set; }
         public Guid CustomerId { get; set; }
         public float Liabilities { get; set; }
 
@@ -24,7 +24,7 @@ namespace HiEIS.Model
         public virtual Staff Staff { get; set; }
         [ForeignKey("CustomerId")]
         public virtual Customer Customer { get; set; }
-
+        
         public virtual ICollection<ProformaInvoiceItem> ProformaInvoiceItems { get; set; }
     }
 }

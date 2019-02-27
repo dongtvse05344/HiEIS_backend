@@ -163,6 +163,7 @@ namespace HiEIS_Core
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
+            app.UseDeveloperExceptionPage();
             app.UseCors("AllowAll");
 
             app.UseAuthentication();

@@ -6,8 +6,9 @@ using System.Text;
 
 namespace HiEIS.Model
 {
-    public class Staff : BaseEntity
+    public class Staff
     {
+        public string Id { get; set; }
         public string Name { get; set; }
         public string Code { get; set; }
         public string Address { get; set; }
