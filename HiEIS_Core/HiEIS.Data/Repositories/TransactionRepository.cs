@@ -13,7 +13,7 @@ namespace HiEIS.Data.Repositories
     
     public class TransactionRepository : Repository<Transaction>, ITransactionRepository
     {
-        public TransactionRepository(DbFactory dbFactory) : base(dbFactory)
+        public TransactionRepository(IDbFactory dbFactory) : base(dbFactory)
         {
 
         }

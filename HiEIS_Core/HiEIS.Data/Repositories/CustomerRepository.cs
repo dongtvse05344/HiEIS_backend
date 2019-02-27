@@ -12,7 +12,7 @@ namespace HiEIS.Data.Repositories
     }
     public class CustomerRepository : Repository<Customer>, ICustomerRepository
     {
-        public CustomerRepository(DbFactory dbFactory) : base(dbFactory)
+        public CustomerRepository(IDbFactory dbFactory) : base(dbFactory)
         {
 
         }

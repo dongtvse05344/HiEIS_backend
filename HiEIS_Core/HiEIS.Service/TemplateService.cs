@@ -17,6 +17,7 @@ namespace HiEIS.Service
         void CreateTemplate(Template template);
         void UpdateTemplate(Template template);
         void DeleteTemplate(Template template);
+        void SaveChanges();
     }
 
     public class TemplateService : ITemplateService

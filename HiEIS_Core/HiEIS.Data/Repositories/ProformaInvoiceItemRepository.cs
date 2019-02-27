@@ -13,7 +13,7 @@ namespace HiEIS.Data.Repositories
     
     public class ProformaInvoiceItemRepository : Repository<ProformaInvoiceItem>, IProformaInvoiceItemRepository
     {
-        public ProformaInvoiceItemRepository(DbFactory dbFactory) : base(dbFactory)
+        public ProformaInvoiceItemRepository(IDbFactory dbFactory) : base(dbFactory)
         {
 
         }

@@ -73,7 +73,12 @@ namespace HiEIS_Core
             //Template
             services.AddTransient<ITemplateRepository, TemplateRepository>();
             services.AddTransient<ITemplateService, TemplateService>();
+
+            services.AddTransient<IFileService, FileService>();
+
             #endregion
+
+
 
             #region Identity
             services.AddAuthorization();

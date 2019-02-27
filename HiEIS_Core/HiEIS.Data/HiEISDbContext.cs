@@ -198,8 +198,7 @@ namespace HiEIS.Data
             #region Staff
             builder.Entity<Staff>().Property(_ => _.Id).IsRequired();
             builder.Entity<Staff>().Property(_ => _.Name).HasMaxLength(100).IsUnicode();
-            builder.Entity<Staff>().Property(_ => _.Code).IsRequired().IsUnicode(false);
-            builder.Entity<Staff>().Property(_ => _.Address).IsRequired().IsUnicode();
+            builder.Entity<Staff>().Property(_ => _.Code).IsUnicode(false);
             builder.Entity<Staff>().Property(_ => _.CompanyId).IsRequired();
             builder.Entity<Staff>()
                 .HasOne(_ => _.Company).WithMany(_ => _.Staffs)

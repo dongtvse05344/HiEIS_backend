@@ -14,9 +14,8 @@ namespace HiEIS.Data.Repositories
 
     public class TemplateRepository : Repository<Template>, ITemplateRepository
     {
-        public TemplateRepository(DbFactory dbFactory) : base(dbFactory)
+        public TemplateRepository(IDbFactory dbFactory) : base(dbFactory)
         {
-
         }
     }
 }

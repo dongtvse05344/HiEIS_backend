@@ -8,6 +8,11 @@ using System.Threading.Tasks;
 
 namespace HiEIS_Core.Utils
 {
+    public enum FileType
+    {
+        Template,
+        Invoice 
+    }
     public enum UserRoles
     {
         [Display(Name = "Quản trị hệ thống")]

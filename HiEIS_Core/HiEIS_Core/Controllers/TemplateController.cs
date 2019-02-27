@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HiEIS.Model;
 using HiEIS.Service;
+using HiEIS_Core.Utils;
 using HiEIS_Core.ViewModels;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
@@ -19,11 +20,13 @@ namespace HiEIS_Core.Controllers
     {
         private readonly ITemplateService _templateService;
         private readonly UserManager<MyUser> _userManager;
+        private readonly IFileService _fileService;
 
-        public TemplateController(ITemplateService templateService, UserManager<MyUser> userManager)
+        public TemplateController(ITemplateService templateService, UserManager<MyUser> userManager, IFileService fileService)
         {
             _templateService = templateService;
             _userManager = userManager;
+            _fileService = fileService;
         }
 
         [Authorize(Roles ="Manager")]
@@ -36,7 +39,7 @@ namespace HiEIS_Core.Controllers
                 var template = model.Adapt<Template>();
                 template.CompanyId = user.Staff.CompanyId;
                 _templateService.CreateTemplate(template);
-
+                _templateService.SaveChanges();
                 return StatusCode(201, template.Id);
             }
             catch (Exception e)
@@ -44,18 +47,37 @@ namespace HiEIS_Core.Controllers
                 return BadRequest(e.Message);
             }
         }
-        [HttpPost("file")]
-        public ActionResult Post_( IFormFile Invoice, IFormFile ReleaseAnnouncement, string templateId)
+        [HttpPost("file/{id}")]
+        public ActionResult Post_( IFormFile Invoice, IFormFile ReleaseAnnouncement, Guid id)
         {
+            Template template = null;
             try
             {
-
-                return StatusCode(201);
+                var user = _userManager.GetUserAsync(User).Result;
+                template = _templateService.GetTemplate(id);
+                if (template == null) return NotFound();
+                template.FileUrl = _fileService.SaveFile(user.Staff.CompanyId.ToString(), nameof(FileType.Template), Invoice).Result;
+                template.ReleaseAnnouncementUrl = _fileService.SaveFile(user.Staff.CompanyId.ToString(), nameof(FileType.Template), ReleaseAnnouncement).Result;
+                _templateService.SaveChanges();
+                return Ok();
             }
             catch (Exception e)
             {
+                if(template != null)
+                {
+                    if(template.FileUrl.Length>0)
+                    {
+                        _fileService.DeleteFile(template.FileUrl);
+                    }
+                    if (template.ReleaseAnnouncementUrl.Length > 0)
+                    {
+                        _fileService.DeleteFile(template.ReleaseAnnouncementUrl);
+                    }
+                }
                 return BadRequest(e.Message);
             }
         }
+
+
     }
 }
