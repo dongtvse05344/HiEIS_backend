@@ -10,7 +10,9 @@ using HiEIS.Service;
 using HiEIS_Core.Paging;
 using HiEIS_Core.ViewModels;
 using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -21,10 +23,23 @@ namespace HiEIS_Core.Controllers
     public class CompanyController : ControllerBase
     {
         private readonly ICompanyService _companyService;
+        private readonly UserManager<MyUser> _userManager;
+        private readonly IStaffService _staffService;
 
-        public CompanyController(ICompanyService companyService)
+        public CompanyController(ICompanyService companyService, UserManager<MyUser> userManager, IStaffService staffService)
         {
             _companyService = companyService;
+            _userManager = userManager;
+            _staffService = staffService;
+        }
+
+        [Authorize(Roles = "Manager")]
+        [HttpGet("GetCompany")]
+        public async Task<ActionResult> GetCompany()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var staff = _staffService.GetStaff(user.Id);
+            return Ok(staff.Company.Adapt<CompanyVM>());
         }
 
         [HttpGet]

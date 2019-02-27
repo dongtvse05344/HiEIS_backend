@@ -32,13 +32,13 @@ namespace HiEIS_Core.Controllers
             var result = product.ToPageList<ProductVM, Product>(index, pageSize);
             return Ok(result);
         }
-
+        [HttpGet("GetById")]
         public ActionResult Get(Guid id)
         {
             var product = _productService.GetProduct(Guid.NewGuid());
             return Ok(product.Adapt<ProductVM>());
         }
-
+        [HttpPut]
         public ActionResult Update(ProductUM model)
         {
             var product = _productService.GetProduct(model.Id);

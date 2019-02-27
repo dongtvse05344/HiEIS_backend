@@ -20,6 +20,7 @@ namespace HiEIS.Model
 
         public virtual ICollection<Staff> Staffs { get; set; }
         public virtual ICollection<Product> Products { get; set; }
+        public virtual ICollection<Template> Templates { get; set; }
 
     }
 }

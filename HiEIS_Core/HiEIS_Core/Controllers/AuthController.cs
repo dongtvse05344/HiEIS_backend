@@ -62,7 +62,8 @@ namespace HiEIS_Core.Controllers
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
-            claims.Add(new Claim(ClaimTypes.Email, user.Email));
+            claims.Add(new Claim(ClaimTypes.Name, user.UserName));
+            claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
             //create token
             var token = new JwtSecurityToken(
                     issuer: "dongtv",

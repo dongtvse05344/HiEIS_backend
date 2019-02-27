@@ -70,6 +70,9 @@ namespace HiEIS_Core
             //Product
             services.AddTransient<IProductRepository, ProductRepository>();
             services.AddTransient<IProductService, ProductService>();
+            //Template
+            services.AddTransient<ITemplateRepository, TemplateRepository>();
+            services.AddTransient<ITemplateService, TemplateService>();
             #endregion
 
             #region Identity
