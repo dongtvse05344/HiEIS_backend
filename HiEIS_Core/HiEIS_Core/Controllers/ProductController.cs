@@ -18,51 +18,93 @@ namespace HiEIS_Core.Controllers
     {
         private readonly IProductService _productService;
 
+        public ProductController(IProductService productService)
+        {
+            _productService = productService;
+        }
+
         [HttpGet]
         public ActionResult GetProducts(int index = 1, int pageSize = 5, string nameSearch = "")
         {
-            nameSearch = nameSearch == null ? "" : nameSearch;
+            try
+            {
+                nameSearch = nameSearch == null ? "" : nameSearch;
 
-            var products = _productService
-                .GetProducts(_ => _.Name.ToLower().Contains(nameSearch.ToLower()));
+                var products = _productService
+                    .GetProducts(_ => _.Name.ToLower().Contains(nameSearch.ToLower()));
 
-            //Paging
-            var result = products.ToPageList<ProductVM, Product>(index, pageSize);
-            return Ok(result);
+                //Paging
+                var result = products.ToPageList<ProductVM, Product>(index, pageSize);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
+            }
         }
 
         [HttpGet("{id}")]
         public ActionResult Get(Guid id)
         {
-            var product = _productService.GetProduct(id);
-            return Ok(product.Adapt<ProductVM>());
+            try
+            {
+                var product = _productService.GetProduct(id);
+                return Ok(product.Adapt<ProductVM>());
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
+            }
         }
 
         [HttpPut]
         public ActionResult Update(ProductUM model)
         {
-            var product = _productService.GetProduct(model.Id);
-            product = model.Adapt(product);
-            _productService.SaveChanges();
-            return Ok();
+            try
+            {
+                var product = _productService.GetProduct(model.Id);
+                product = model.Adapt(product);
+                _productService.SaveChanges();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
+            }
         }
 
         [HttpPost]
         public ActionResult Create([FromBody]ProductCM model)
         {
-            var product = model.Adapt(new Product());
-            _productService.CreateProduct(product);
-            _productService.SaveChanges();
-            return Ok();
+            try
+            {
+                var product = model.Adapt(new Product());
+                _productService.CreateProduct(product);
+                _productService.SaveChanges();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
+            }
         }
 
         [HttpDelete("{id}")]
         public ActionResult Delete(Guid id)
         {
-            var product = _productService.GetProduct(id);
-            _productService.UpdateProduct(product);
-            _productService.SaveChanges();
-            return Ok();
+            try
+            {
+                var product = _productService.GetProduct(id);
+                product.IsActive = false;
+
+                _productService.UpdateProduct(product);
+                _productService.SaveChanges();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
+            }
         }
     }
 }
