@@ -39,8 +39,7 @@ namespace HiEIS.Service
 
         public void DeleteProduct(Product product)
         {
-            product.IsActive = false;
-            _repository.Update(product);
+            _repository.Delete(product);
         }
 
         public Product GetProduct(Guid id)

@@ -8,6 +8,7 @@ using HiEIS_Core.Paging;
 using HiEIS_Core.ViewModels;
 using Mapster;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HiEIS_Core.Controllers
@@ -17,10 +18,12 @@ namespace HiEIS_Core.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
+        private readonly UserManager<MyUser> _userManager;
 
-        public ProductController(IProductService productService)
+        public ProductController(IProductService productService, UserManager<MyUser> userManager)
         {
             _productService = productService;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -28,10 +31,12 @@ namespace HiEIS_Core.Controllers
         {
             try
             {
-                nameSearch = nameSearch == null ? "" : nameSearch;
+                var user = _userManager.GetUserAsync(User).Result;
 
+                nameSearch = nameSearch == null ? "" : nameSearch;
                 var products = _productService
-                    .GetProducts(_ => _.Name.ToLower().Contains(nameSearch.ToLower()));
+                    .GetProducts(_ => _.CompanyId.Equals(user.Staff.CompanyId) && 
+                                    _.Name.ToLower().Contains(nameSearch.ToLower()));
 
                 //Paging
                 var result = products.ToPageList<ProductVM, Product>(index, pageSize);
@@ -77,7 +82,9 @@ namespace HiEIS_Core.Controllers
         {
             try
             {
-                var product = model.Adapt(new Product());
+                var user = _userManager.GetUserAsync(User).Result;
+                var product = model.Adapt<Product>();
+                product.CompanyId = user.Staff.CompanyId;
                 _productService.CreateProduct(product);
                 _productService.SaveChanges();
                 return Ok();
@@ -94,9 +101,9 @@ namespace HiEIS_Core.Controllers
             try
             {
                 var product = _productService.GetProduct(id);
-                product.IsActive = false;
-
-                _productService.UpdateProduct(product);
+                //product.IsActive = false;
+                //_productService.UpdateProduct(product);
+                _productService.DeleteProduct(product);
                 _productService.SaveChanges();
                 return Ok();
             }

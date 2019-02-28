@@ -18,6 +18,8 @@ namespace HiEIS_Core.ViewModels
     public class ProductUM
     {
         public Guid Id { get; set; }
+        public string Name { get; set; }
+
         public string Code { get; set; }
         [Required]
         public float UnitPrice { get; set; }

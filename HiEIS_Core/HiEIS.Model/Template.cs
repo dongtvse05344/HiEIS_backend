@@ -18,7 +18,7 @@ namespace HiEIS.Model
         public bool IsActive { get; set; }
         public string ReleaseAnnouncementUrl { get; set; }
 
-        public string From { get; set; }
+        public string Form { get; set; }
 
         [ForeignKey("CompanyId")]
         public virtual Company Company { get; set; }
