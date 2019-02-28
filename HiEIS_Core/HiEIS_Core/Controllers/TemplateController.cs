@@ -47,8 +47,9 @@ namespace HiEIS_Core.Controllers
                 return BadRequest(e.Message);
             }
         }
-        [HttpPost("file/{id}")]
-        public ActionResult Post_( IFormFile Invoice, IFormFile ReleaseAnnouncement, Guid id)
+
+        [HttpPost("{id}/files")]
+        public ActionResult Post_(IFormFile Invoice, IFormFile ReleaseAnnouncement, Guid id)
         {
             Template template = null;
             try
@@ -78,6 +79,119 @@ namespace HiEIS_Core.Controllers
             }
         }
 
+        [HttpGet("{id}")]
+        public ActionResult GetTempalte(Guid id)
+        {
+            try
+            {
+                var template = _templateService.GetTemplate(id);
+                if (template == null) return NotFound();
 
+                return Ok(template.Adapt<TemplateVM>());
+            }
+            catch (Exception e) 
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("{id}/invoice")]
+        public ActionResult GetTemplateFiles(Guid id)
+        {
+            try
+            {
+                var template = _templateService.GetTemplate(id);
+                if (template == null) return NotFound();
+
+                var file = _fileService.GetFile(template.FileUrl).Result;
+                return File(file.Stream,file.ContentType, file.FileName);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        
+        [HttpPut]
+        public ActionResult UpdateTemplate(TemplateUM model)
+        {
+            try
+            {
+                var template = _templateService.GetTemplate(model.Id);
+                if (template == null) return NotFound();
+
+                template = model.Adapt(template);
+                _templateService.SaveChanges();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPut]
+        public ActionResult UpdateTemplateFiles(IFormFile Invoice, IFormFile ReleaseAnnouncement, Guid id)
+        {
+            Template template = null;
+            string newFileUrl = null;
+            string newReleaseAnnouncementUrl = null;
+
+            try
+            {
+                var user = _userManager.GetUserAsync(User).Result;
+                template = _templateService.GetTemplate(id);
+                if (template == null) return NotFound();
+
+                if (Invoice != null)
+                {
+                    newFileUrl = _fileService.SaveFile(user.Staff.CompanyId.ToString(), nameof(FileType.Template), Invoice).Result;
+                }
+                if (ReleaseAnnouncement != null)
+                {
+                    newReleaseAnnouncementUrl = _fileService.SaveFile(user.Staff.CompanyId.ToString(), nameof(FileType.Template), ReleaseAnnouncement).Result;
+                }
+                
+                template.FileUrl = newFileUrl;
+                template.ReleaseAnnouncementUrl = newReleaseAnnouncementUrl;
+                _templateService.SaveChanges();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                if (template != null)
+                {
+                    if (newFileUrl != null)
+                    {
+                        _fileService.DeleteFile(newFileUrl);
+                    }
+                    if (newReleaseAnnouncementUrl != null)
+                    {
+                        _fileService.DeleteFile(newReleaseAnnouncementUrl);
+                    }
+                }
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpDelete]
+        public ActionResult DeleteTemplate(Guid id)
+        {
+            try
+            {
+                var template = _templateService.GetTemplate(id);
+                if (template == null) return NotFound();
+
+                template.IsActive = false;
+                _templateService.SaveChanges();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
