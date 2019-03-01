@@ -45,12 +45,12 @@ namespace HiEIS_Core.Controllers
             try
             {
                 var user = _userManager.GetUserAsync(User).Result;
-                var invoice = model.Adapt(new Invoice());
+                var invoice = model.Adapt<Invoice>();
                 invoice.StaffId = user.Staff.Id;
 
                 _invoiceService.CreateInvoice(invoice);
                 _invoiceService.SaveChanges();
-                return StatusCode(201);
+                return StatusCode(201, invoice.Id);
             }
             catch (Exception e)
             {
