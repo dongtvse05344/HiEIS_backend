@@ -23,7 +23,7 @@ namespace HiEIS.Data
         public DbSet<Customer> Customers { get; set; }
         //public DbSet<CustomerProduct> CustomerProducts { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
-        public DbSet<InvoiceItem> InvoiceItems { get; set; }
+        //public DbSet<InvoiceItem> InvoiceItems { get; set; }
         public DbSet<Product> Products { get; set; }
         //public DbSet<ProformaInvoice> ProformaInvoices { get; set; }
         //public DbSet<ProformaInvoiceItem> ProformaInvoiceItems { get; set; }
@@ -87,7 +87,7 @@ namespace HiEIS.Data
             //    .HasForeignKey(_ => _.ProductId);
             //#endregion
 
-            //#region Invoice
+            #region Invoice
             //builder.Entity<Invoice>().Property(_ => _.LookupCode).HasMaxLength(50).IsRequired().IsUnicode(false);
             //builder.Entity<Invoice>().Property(_ => _.Number).HasMaxLength(50).IsRequired().IsUnicode(false);
             //builder.Entity<Invoice>().Property(_ => _.Type).IsRequired();
@@ -110,38 +110,38 @@ namespace HiEIS.Data
             //builder.Entity<Invoice>().Property(_ => _.StaffId).IsRequired();
             //builder.Entity<Invoice>().Property(_ => _.CustomerId).IsRequired();
             //builder.Entity<Invoice>().Property(_ => _.CodeGuid).IsRequired();
-            //builder.Entity<Invoice>()
-            //    .HasOne(_ => _.Staff).WithMany(_ => _.Invoices)
-            //    .HasForeignKey(_ => _.StaffId);
-            //builder.Entity<Invoice>()
-            //    .HasOne(_ => _.Template).WithMany(_ => _.Invoices)
-            //    .HasForeignKey(_ => _.TemplateId);
+            builder.Entity<Invoice>()
+                .HasOne(_ => _.Staff).WithMany(_ => _.Invoices)
+                .HasForeignKey(_ => _.StaffId);
+            builder.Entity<Invoice>()
+                .HasOne(_ => _.Template).WithMany(_ => _.Invoices)
+                .HasForeignKey(_ => _.TemplateId);
             //builder.Entity<Invoice>()
             //    .HasOne(_ => _.Customer).WithMany(_ => _.Invoices)
             //    .HasForeignKey(_ => _.CustomerId);
             //builder.Entity<Invoice>().HasMany(_ => _.InvoiceItems).WithOne(_ => _.Invoice);
-            //#endregion
+            #endregion
 
-            //#region InvoiceItem
+            #region InvoiceItem
             //builder.Entity<InvoiceItem>().HasKey(_ => new { _.InvoiceId, _.ProductId });
             //builder.Entity<InvoiceItem>().Property(_ => _.Quantity).IsRequired();
             //builder.Entity<InvoiceItem>().Property(_ => _.UnitPrice).IsRequired().HasColumnType("decimal");
             //builder.Entity<InvoiceItem>().Property(_ => _.VATRate).HasColumnType("decimal");
-            //builder.Entity<InvoiceItem>()
-            //    .HasOne(_ => _.Invoice).WithMany(_ => _.InvoiceItems)
-            //    .HasForeignKey(_ => _.InvoiceId);
-            //builder.Entity<InvoiceItem>()
-            //    .HasOne(_ => _.Product).WithMany(_ => _.InvoiceItems)
-            //    .HasForeignKey(_ => _.ProductId);
-            //#endregion
+            builder.Entity<InvoiceItem>()
+                .HasOne(_ => _.Invoice).WithMany(_ => _.InvoiceItems)
+                .HasForeignKey(_ => _.InvoiceId).OnDelete(DeleteBehavior.Restrict);
+            builder.Entity<InvoiceItem>()
+                .HasOne(_ => _.Product).WithMany(_ => _.InvoiceItems)
+                .HasForeignKey(_ => _.ProductId).OnDelete(DeleteBehavior.Restrict); ;
+            #endregion
 
-            //#region MyUser
+            #region MyUser
             //builder.Entity<MyUser>().Property(_ => _.Name).HasMaxLength(100).IsUnicode();
             //builder.Entity<MyUser>().Property(_ => _.IsActive).HasDefaultValue(true);
-            //builder.Entity<MyUser>()
-            //    .HasOne(_ => _.Staff).WithOne(_ => _.MyUser)
-            //    .HasForeignKey<Staff>(_ => _.Id);
-            //#endregion
+            builder.Entity<MyUser>()
+                .HasOne(_ => _.Staff).WithOne(_ => _.MyUser)
+                .HasForeignKey<Staff>(_ => _.Id);
+            #endregion
 
             #region Product
             //builder.Entity<Product>().Property(_ => _.Name).IsRequired().IsUnicode();
@@ -202,8 +202,6 @@ namespace HiEIS.Data
                 .HasOne(_ => _.Staff).WithOne(_ => _.MyUser)
                 .HasForeignKey<Staff>(_ => _.Id);
 
-            #endregion
-            //#region Staff
             //builder.Entity<Staff>().Property(_ => _.Id).IsRequired();
             //builder.Entity<Staff>().Property(_ => _.Name).HasMaxLength(100).IsUnicode();
             //builder.Entity<Staff>().Property(_ => _.Code).IsUnicode(false);
@@ -215,19 +213,19 @@ namespace HiEIS.Data
             //    .HasOne(_ => _.MyUser).WithOne(_ => _.Staff);
             //builder.Entity<Staff>().HasMany(_ => _.Invoices).WithOne(_ => _.Staff);
             //builder.Entity<Staff>().HasMany(_ => _.ProformaInvoices).WithOne(_ => _.Staff);
-            //#endregion
+            #endregion
 
-            //#region Template
-            //builder.Entity<Template>().Property(_ => _.Name).HasMaxLength(100).IsRequired().IsUnicode();
-            //builder.Entity<Template>().Property(_ => _.From).HasMaxLength(100).IsRequired().IsUnicode();
-            //builder.Entity<Template>().Property(_ => _.Serial).IsRequired().IsUnicode(false);
-            //builder.Entity<Template>().Property(_ => _.CompanyId).IsRequired();
-            //builder.Entity<Template>().Property(_ => _.IsActive).HasDefaultValue(true);
+            #region Template
+            builder.Entity<Template>().Property(_ => _.Name).HasMaxLength(100).IsRequired().IsUnicode();
+            builder.Entity<Template>().Property(_ => _.Form).HasMaxLength(100).IsRequired().IsUnicode();
+            builder.Entity<Template>().Property(_ => _.Serial).IsRequired().IsUnicode(false);
+            builder.Entity<Template>().Property(_ => _.CompanyId).IsRequired();
+            builder.Entity<Template>().Property(_ => _.IsActive).HasDefaultValue(true);
             //builder.Entity<Template>()
             //    .HasOne(_ => _.Company).WithMany(_ => _.Templates)
             //    .HasForeignKey(_ => _.CompanyId);
             //builder.Entity<Template>().HasMany(_ => _.Invoices).WithOne(_ => _.Template);
-            //#endregion
+            #endregion
 
             //#region Transaction
             //builder.Entity<Transaction>().Property(_ => _.Type).IsRequired();

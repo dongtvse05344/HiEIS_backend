@@ -38,7 +38,6 @@ namespace HiEIS.Model
         public virtual Template Template { get; set; }
         [ForeignKey("TemplateId")]
         public virtual Customer Customer { get; set; }
-
         public virtual ICollection<InvoiceItem> InvoiceItems { get; set; }
     }
 }

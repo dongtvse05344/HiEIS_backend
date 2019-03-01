@@ -6,11 +6,9 @@ using System.Text;
 
 namespace HiEIS.Model
 {
-    public class InvoiceItem
+    public class InvoiceItem : BaseEntity
     {
-        [Key]
         public Guid InvoiceId { get; set; }
-        [Key]
         public Guid ProductId { get; set; }
         public int Quantity { get; set; }
 

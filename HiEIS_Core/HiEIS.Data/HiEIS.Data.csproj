@@ -7,6 +7,11 @@
   <ItemGroup>
     <Compile Remove="Migrations\20190227111103_dong27202019_1.cs" />
     <Compile Remove="Migrations\20190227113307_dong27202019_1.cs" />
+    <Compile Remove="Migrations\20190301132929_dong01032019.cs" />
+    <Compile Remove="Migrations\20190301140518_dong01032019.cs" />
+    <Compile Remove="Migrations\20190301140728_dong01032019.cs" />
+    <Compile Remove="Migrations\20190301141520_dong01032019_1.cs" />
+    <Compile Remove="Migrations\20190301142135_dong01032019_1.cs" />
   </ItemGroup>
 
   <ItemGroup>

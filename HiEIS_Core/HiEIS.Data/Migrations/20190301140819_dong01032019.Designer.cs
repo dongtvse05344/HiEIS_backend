@@ -4,14 +4,16 @@ using HiEIS.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HiEIS.Data.Migrations
 {
     [DbContext(typeof(HiEISDbContext))]
-    partial class HiEISDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190301140819_dong01032019")]
+    partial class dong01032019
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -90,76 +92,6 @@ namespace HiEIS.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Customers");
-                });
-
-            modelBuilder.Entity("HiEIS.Model.Invoice", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("AmountInWords");
-
-                    b.Property<Guid>("CustomerId");
-
-                    b.Property<DateTime>("Date");
-
-                    b.Property<DateTime>("DueDate");
-
-                    b.Property<string>("FileUrl");
-
-                    b.Property<string>("Form");
-
-                    b.Property<string>("Note");
-
-                    b.Property<string>("Number");
-
-                    b.Property<int>("PaymentMethod");
-
-                    b.Property<int>("PaymentStatus");
-
-                    b.Property<string>("Serial");
-
-                    b.Property<string>("StaffId");
-
-                    b.Property<float>("SubTotal");
-
-                    b.Property<Guid>("TemplateId");
-
-                    b.Property<float>("Total");
-
-                    b.Property<int>("Type");
-
-                    b.Property<float>("VATAmount");
-
-                    b.Property<float>("VATRate");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StaffId");
-
-                    b.HasIndex("TemplateId");
-
-                    b.ToTable("Invoices");
-                });
-
-            modelBuilder.Entity("HiEIS.Model.InvoiceItem", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<Guid>("InvoiceId");
-
-                    b.Property<Guid>("ProductId");
-
-                    b.Property<int>("Quantity");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InvoiceId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("InvoiceItem");
                 });
 
             modelBuilder.Entity("HiEIS.Model.MyUser", b =>
@@ -418,36 +350,6 @@ namespace HiEIS.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
-                });
-
-            modelBuilder.Entity("HiEIS.Model.Invoice", b =>
-                {
-                    b.HasOne("HiEIS.Model.Staff", "Staff")
-                        .WithMany("Invoices")
-                        .HasForeignKey("StaffId");
-
-                    b.HasOne("HiEIS.Model.Customer", "Customer")
-                        .WithMany("Invoices")
-                        .HasForeignKey("TemplateId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("HiEIS.Model.Template", "Template")
-                        .WithMany("Invoices")
-                        .HasForeignKey("TemplateId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("HiEIS.Model.InvoiceItem", b =>
-                {
-                    b.HasOne("HiEIS.Model.Invoice", "Invoice")
-                        .WithMany("InvoiceItems")
-                        .HasForeignKey("InvoiceId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("HiEIS.Model.Product", "Product")
-                        .WithMany("InvoiceItems")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("HiEIS.Model.Product", b =>
