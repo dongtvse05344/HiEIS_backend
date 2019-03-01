@@ -15,7 +15,6 @@ namespace HiEIS.Model
         public float VATRate { get; set; }
         public Guid CompanyId { get; set; }
         public bool IsActive { get; set; }
-        public bool HasIndex { get; set; }
 
         [ForeignKey("CompanyId")]
         public virtual Company Company { get; set; }

@@ -19,8 +19,9 @@ namespace HiEIS_Core.ViewModels
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-
         public string Code { get; set; }
+        public string Unit { get; set; }
+
         [Required]
         public float UnitPrice { get; set; }
         [Required]

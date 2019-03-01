@@ -131,7 +131,7 @@ namespace HiEIS_Core.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPut("file")]
         public ActionResult UpdateTemplateFiles(IFormFile Invoice, IFormFile ReleaseAnnouncement, Guid id)
         {
             Template template = null;

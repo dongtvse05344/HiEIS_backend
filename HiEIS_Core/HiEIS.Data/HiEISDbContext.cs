@@ -143,9 +143,10 @@ namespace HiEIS.Data
             //    .HasForeignKey<Staff>(_ => _.Id);
             //#endregion
 
-            //#region Product
+            #region Product
             //builder.Entity<Product>().Property(_ => _.Name).IsRequired().IsUnicode();
-            //builder.Entity<Product>().Property(_ => _.Code).IsRequired().IsUnicode(false);
+            builder.Entity<Product>().HasIndex(_ => _.Code).IsUnique();
+            
             //builder.Entity<Product>().Property(_ => _.Unit).IsRequired().IsUnicode();
             //builder.Entity<Product>().Property(_ => _.UnitPrice).IsRequired().HasColumnType("decimal");
             //builder.Entity<Product>().Property(_ => _.VATRate).IsRequired().HasColumnType("decimal");
@@ -158,7 +159,7 @@ namespace HiEIS.Data
             //builder.Entity<Product>().HasMany(_ => _.InvoiceItems).WithOne(_ => _.Product);
             //builder.Entity<Product>().HasMany(_ => _.CustomerProducts).WithOne(_ => _.Product);
             //builder.Entity<Product>().HasMany(_ => _.ProformaInvoiceItems).WithOne(_ => _.Product);
-            //#endregion
+            #endregion
 
             //#region ProformaInvoice
             //builder.Entity<ProformaInvoice>().Property(_ => _.LookupCode).HasMaxLength(50).IsRequired().IsUnicode(false);

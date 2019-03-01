@@ -27,16 +27,20 @@ namespace HiEIS_Core.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetProducts(int index = 1, int pageSize = 5, string nameSearch = "")
+        public ActionResult GetProducts(int index = 1, int pageSize = 5, string nameSearch = "",string codeSearch = "")
         {
             try
             {
                 var user = _userManager.GetUserAsync(User).Result;
 
+                codeSearch = codeSearch == null ? "" : codeSearch;
                 nameSearch = nameSearch == null ? "" : nameSearch;
                 var products = _productService
                     .GetProducts(_ => _.CompanyId.Equals(user.Staff.CompanyId) && 
-                                    _.Name.ToLower().Contains(nameSearch.ToLower()));
+                                    _.Name.ToLower().Contains(nameSearch.ToLower()) &&
+                                    _.Code.ToLower().Contains(codeSearch.ToLower())
+
+                                    );
 
                 //Paging
                 var result = products.ToPageList<ProductVM, Product>(index, pageSize);
@@ -67,6 +71,7 @@ namespace HiEIS_Core.Controllers
             try
             {
                 var product = _productService.GetProduct(model.Id);
+                if (product == null) return NotFound();
                 product = model.Adapt(product);
                 _productService.SaveChanges();
                 return Ok();
