@@ -13,8 +13,6 @@ namespace HiEIS.Model
         [Key]
         public Guid ProductId { get; set; }
         public int Quantity { get; set; }
-        public float UnitPrice { get; set; }
-        public float VATRate { get; set; }
 
         [ForeignKey("InvoiceId")]
         public virtual Invoice Invoice { get; set; }

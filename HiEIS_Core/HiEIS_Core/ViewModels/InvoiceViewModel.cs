@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace HiEIS.Model
+namespace HiEIS_Core.ViewModels
 {
-    public class Invoice : BaseEntity
+    public class InvoiceVM
     {
+        public Guid Id { get; set; }
         //Mẫu số
         public string Form { get; set; }
         //Kí hiệu
@@ -18,7 +19,6 @@ namespace HiEIS.Model
         public DateTime DueDate { get; set; }
         public int PaymentMethod { get; set; }
         public int PaymentStatus { get; set; }
-        public string FileUrl { get; set; }
 
         //Cộng tiền hàng (chưa tính thuế)
         public float SubTotal { get; set; }
@@ -26,19 +26,37 @@ namespace HiEIS.Model
         public float VATAmount { get; set; }
         public float Total { get; set; }
         public string AmountInWords { get; set; }
-        
+
         public string Note { get; set; }
         public Guid TemplateId { get; set; }
         public string StaffId { get; set; }
         public Guid CustomerId { get; set; }
+    }
 
-        [ForeignKey("StaffId")]
-        public virtual Staff Staff { get; set; }
-        [ForeignKey("TemplateId")]
-        public virtual Template Template { get; set; }
-        [ForeignKey("TemplateId")]
-        public virtual Customer Customer { get; set; }
+    public class InvoiceCM
+    {
+        public string Form { get; set; }
+        //Kí hiệu
+        public string Serial { get; set; }
+        public string Number { get; set; }
+        //Loại HĐ (GTGT / Bán hàng)
+        public int Type { get; set; }
+        public DateTime Date { get; set; }
+        public int PaymentMethod { get; set; }
+        public int PaymentStatus { get; set; }
 
-        public virtual ICollection<InvoiceItem> InvoiceItems { get; set; }
+        public string Note { get; set; }
+        public Guid TemplateId { get; set; }
+        public Guid CustomerId { get; set; }
+    }
+
+    public class InvoiceUM
+    {
+        public Guid Id { get; set; }
+        public DateTime DueDate { get; set; }
+        public int PaymentMethod { get; set; }
+        public int PaymentStatus { get; set; }
+
+        public string Note { get; set; }
     }
 }

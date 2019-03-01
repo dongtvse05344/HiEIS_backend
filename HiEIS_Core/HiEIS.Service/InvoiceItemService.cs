@@ -13,7 +13,7 @@ namespace HiEIS.Service
     {
         IQueryable<InvoiceItem> GetInvoiceItems();
         IQueryable<InvoiceItem> GetInvoiceItems(Expression<Func<InvoiceItem, bool>> where);
-        InvoiceItem GetInvoiceItem(Guid id);
+        InvoiceItem GetInvoiceItem(Guid invoiceId, Guid productId);
         void CreateInvoiceItem(InvoiceItem invoiceItem);
         void UpdateInvoiceItem(InvoiceItem invoiceItem);
         void DeleteInvoiceItem(InvoiceItem invoiceItem);
@@ -41,9 +41,9 @@ namespace HiEIS.Service
             throw new NotImplementedException();
         }
 
-        public InvoiceItem GetInvoiceItem(Guid id)
+        public InvoiceItem GetInvoiceItem(Guid invoiceId, Guid productId)
         {
-            return _repository.GetById(id);
+            return _repository.GetMany(_ => _.InvoiceId == invoiceId && _.ProductId == productId).FirstOrDefault();
         }
 
         public IQueryable<InvoiceItem> GetInvoiceItems()
