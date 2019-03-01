@@ -30,6 +30,7 @@ namespace HiEIS_Core.Controllers
             try
             {
                 var invoice = _invoiceService.GetInvoice(id);
+                if (invoice == null) return NotFound();
                 return Ok(invoice.Adapt<InvoiceVM>());
             }
             catch (Exception e)
@@ -63,6 +64,7 @@ namespace HiEIS_Core.Controllers
             try
             {
                 var invoice = _invoiceService.GetInvoice(model.Id);
+                if (invoice == null) return NotFound();
                 invoice = model.Adapt(invoice);
                 _invoiceService.SaveChanges();
                 return Ok();
