@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HiEIS.Model;
 using HiEIS.Service;
+using HiEIS_Core.Paging;
 using HiEIS_Core.Utils;
 using HiEIS_Core.ViewModels;
 using Mapster;
@@ -29,13 +30,23 @@ namespace HiEIS_Core.Controllers
             _fileService = fileService;
         }
 
-        [Authorize(Roles ="Manager")]
+        [Authorize(Roles = "Manager")]
+        [HttpGet]
+        public async Task<ActionResult> Get(int index = 1, int pageSize = 5)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var templates = _templateService.GetTemplates(
+                _ => _.CompanyId.Equals(user.Staff.CompanyId));
+            var result = templates.ToPageList<TemplateVM, Template>(index, pageSize);
+            return Ok(result);
+        }
+        [Authorize(Roles = "Manager")]
         [HttpPost]
-        public async Task <ActionResult> Post(TemplateCM model)
+        public async Task<ActionResult> Post(TemplateCM model)
         {
             try
             {
-                var user =  await _userManager.GetUserAsync(User);
+                var user = await _userManager.GetUserAsync(User);
                 var template = model.Adapt<Template>();
                 template.CompanyId = user.Staff.CompanyId;
                 _templateService.CreateTemplate(template);
@@ -64,13 +75,13 @@ namespace HiEIS_Core.Controllers
             }
             catch (Exception e)
             {
-                if(template != null)
+                if (template != null)
                 {
-                    if(template.FileUrl.Length>0)
+                    if (template.FileUrl != null && template.FileUrl.Length > 0)
                     {
                         _fileService.DeleteFile(template.FileUrl);
                     }
-                    if (template.ReleaseAnnouncementUrl.Length > 0)
+                    if (template.ReleaseAnnouncementUrl != null && template.ReleaseAnnouncementUrl.Length > 0)
                     {
                         _fileService.DeleteFile(template.ReleaseAnnouncementUrl);
                     }
@@ -89,7 +100,7 @@ namespace HiEIS_Core.Controllers
 
                 return Ok(template.Adapt<TemplateVM>());
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
@@ -104,14 +115,17 @@ namespace HiEIS_Core.Controllers
                 if (template == null) return NotFound();
 
                 var file = _fileService.GetFile(template.FileUrl).Result;
-                return File(file.Stream,file.ContentType, file.FileName);
+                //return File(file.Stream,file.ContentType, file.FileName);
+                return File(file.Stream, file.ContentType);
+                //return new FileStreamResult(file.Stream, file.ContentType);
+
             }
             catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
         }
-        
+
         [HttpPut]
         public ActionResult UpdateTemplate(TemplateUM model)
         {
@@ -152,7 +166,7 @@ namespace HiEIS_Core.Controllers
                 {
                     newReleaseAnnouncementUrl = _fileService.SaveFile(user.Staff.CompanyId.ToString(), nameof(FileType.Template), ReleaseAnnouncement).Result;
                 }
-                
+
                 template.FileUrl = newFileUrl;
                 template.ReleaseAnnouncementUrl = newReleaseAnnouncementUrl;
                 _templateService.SaveChanges();

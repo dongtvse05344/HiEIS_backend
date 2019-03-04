@@ -10,8 +10,8 @@ namespace HiEIS_Core.ViewModels
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
+        public string Form { get; set; }
         public string Serial { get; set; }
-        public Guid CompanyId { get; set; }
         public long Amount { get; set; }
         public int BeginNo { get; set; }
         public int CurrentNo { get; set; }
@@ -40,6 +40,7 @@ namespace HiEIS_Core.ViewModels
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
+        public string Form { get; set; }
         public string Serial { get; set; }
         public long Amount { get; set; }
         public int BeginNo { get; set; }
