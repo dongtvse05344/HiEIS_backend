@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HiEIS.Model;
 using HiEIS.Service;
+using HiEIS_Core.Paging;
 using HiEIS_Core.Utils;
 using HiEIS_Core.ViewModels;
 using Mapster;
@@ -131,7 +132,7 @@ namespace HiEIS_Core.Controllers
             }
         }
 
-        [HttpPut("file")]
+        [HttpPut("{id}/files")]
         public ActionResult UpdateTemplateFiles(IFormFile Invoice, IFormFile ReleaseAnnouncement, Guid id)
         {
             Template template = null;
@@ -187,6 +188,25 @@ namespace HiEIS_Core.Controllers
                 _templateService.SaveChanges();
 
                 return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet]
+        public ActionResult GetTemplates(int index = 1, int pageSize = 5)
+        {
+            try
+            {
+                var user = _userManager.GetUserAsync(User).Result;
+                var templates = _templateService
+                    .GetTemplates(_ => _.IsActive == true && _.CompanyId.Equals(user.Staff.CompanyId));
+                if (templates == null) return NotFound();
+
+                var result = templates.ToPageList<TemplateVM, Template>(index, pageSize);
+                return Ok(result);
             }
             catch (Exception e)
             {
