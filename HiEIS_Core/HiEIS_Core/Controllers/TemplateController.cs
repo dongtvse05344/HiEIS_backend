@@ -40,6 +40,23 @@ namespace HiEIS_Core.Controllers
             var result = templates.ToPageList<TemplateVM, Template>(index, pageSize);
             return Ok(result);
         }
+
+        [Authorize]
+        [HttpGet("GetAll")]
+        public async Task<ActionResult> Get()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var templates = _templateService.GetTemplates(
+                _ => _.CompanyId.Equals(user.Staff.CompanyId) && 
+                     _.IsActive == true).OrderBy(_=>_.ReleaseDate).ToList();
+            List<TemplateVM> result = new List<TemplateVM>();
+            foreach (var item in templates)
+            {
+                result.Add(item.Adapt<TemplateVM>());
+            }
+            return Ok(result);
+        }
+
         [Authorize(Roles = "Manager")]
         [HttpPost]
         public async Task<ActionResult> Post(TemplateCM model)

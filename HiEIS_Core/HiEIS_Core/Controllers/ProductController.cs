@@ -7,6 +7,7 @@ using HiEIS.Service;
 using HiEIS_Core.Paging;
 using HiEIS_Core.ViewModels;
 using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -39,11 +40,33 @@ namespace HiEIS_Core.Controllers
                     .GetProducts(_ => _.CompanyId.Equals(user.Staff.CompanyId) && 
                                     _.Name.ToLower().Contains(nameSearch.ToLower()) &&
                                     _.Code.ToLower().Contains(codeSearch.ToLower())
-
                                     );
 
                 //Paging
                 var result = products.ToPageList<ProductVM, Product>(index, pageSize);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
+            }
+        }
+
+        [Authorize]
+        [HttpGet("GetAll")]
+        public ActionResult GetProducts()
+        {
+            try
+            {
+                var user = _userManager.GetUserAsync(User).Result;
+                var products = _productService.GetProducts(
+                    _ => _.IsActive == true && _.CompanyId.Equals(user.Staff.CompanyId))
+                    .OrderBy(_ => _.Name).ToList();
+                List<ProductVM> result = new List<ProductVM>();
+                foreach (var item in products)
+                {
+                    result.Add(item.Adapt<ProductVM>());
+                }
                 return Ok(result);
             }
             catch (Exception e)
