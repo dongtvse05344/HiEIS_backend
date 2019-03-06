@@ -75,6 +75,7 @@ namespace HiEIS_Core
             services.AddTransient<ITemplateService, TemplateService>();
 
             services.AddTransient<IFileService, FileService>();
+            services.AddTransient<IPdfService, PdfService>();
 
             #endregion
 
