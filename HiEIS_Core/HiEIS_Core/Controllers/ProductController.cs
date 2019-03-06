@@ -81,6 +81,7 @@ namespace HiEIS_Core.Controllers
             try
             {
                 var product = _productService.GetProduct(id);
+                if (product == null) return NotFound();
                 return Ok(product.Adapt<ProductVM>());
             }
             catch (Exception e)

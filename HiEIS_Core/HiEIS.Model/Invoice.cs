@@ -11,7 +11,7 @@ namespace HiEIS.Model
         public string Form { get; set; }
         //Kí hiệu
         public string Serial { get; set; }
-        public string Number { get; set; }
+        public int Number { get; set; }
         //Loại HĐ (GTGT / Bán hàng)
         public int Type { get; set; }
         public DateTime Date { get; set; }
@@ -20,6 +20,16 @@ namespace HiEIS.Model
         public int PaymentStatus { get; set; }
         public string FileUrl { get; set; }
 
+        //Thông tin khách hàng
+        public string Name { get; set; }
+        public string Enterprise { get; set; }
+        public string TaxNo { get; set; }
+        public string Address { get; set; }
+        public string Tel { get; set; }
+        public string Fax { get; set; }
+        public string Bank { get; set; }
+        public string BankAccountNumber { get; set; }
+        
         //Cộng tiền hàng (chưa tính thuế)
         public float SubTotal { get; set; }
         public float VATRate { get; set; }

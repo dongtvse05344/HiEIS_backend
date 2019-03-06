@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using IronPdf;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +13,7 @@ namespace HiEIS.Service
         void CreateFolder(string companyName);
         string GenerateFileName(string fileName);
         Task<string> SaveFile(string companyId, string type, IFormFile file);
+        string SaveFile(string companyId, string type, List<PdfDocument> pdfDocuments, int currentNo);
         Task<FileSupport> GetFile(string url);
         void DeleteFile(string url);
     }
@@ -81,6 +83,25 @@ namespace HiEIS.Service
             catch (Exception)
             {
                 return null;
+            }
+        }
+
+        public string SaveFile(string companyId, string type, List<PdfDocument> pdfDocuments, int currentNo)
+        {
+            try
+            {
+                string currentDate = DateTime.Now.ToString("dMyyyyhmmss");
+                string filename = currentNo + "_" + currentDate + ".pdf";
+                string path = Path.Combine(Directory.GetCurrentDirectory(),
+                                    "Files", companyId, type,
+                                    filename);
+                PdfDocument.Merge(pdfDocuments).SaveAs(path);
+
+                return "Files\\" + companyId + "\\" + type + "\\" + filename;
+            }
+            catch (Exception e)
+            {
+                throw e;
             }
         }
 
