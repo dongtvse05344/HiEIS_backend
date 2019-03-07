@@ -225,23 +225,5 @@ namespace HiEIS_Core.Controllers
             }
         }
 
-        [HttpGet]
-        public ActionResult GetTemplates(int index = 1, int pageSize = 5)
-        {
-            try
-            {
-                var user = _userManager.GetUserAsync(User).Result;
-                var templates = _templateService
-                    .GetTemplates(_ => _.IsActive == true && _.CompanyId.Equals(user.Staff.CompanyId));
-                if (templates == null) return NotFound();
-
-                var result = templates.ToPageList<TemplateVM, Template>(index, pageSize);
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
     }
 }
