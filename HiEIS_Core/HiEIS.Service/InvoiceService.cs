@@ -331,8 +331,8 @@ namespace HiEIS.Service
                     // set Text Size
 
                     AcroFields fields = pdfStamper.AcroFields;
-                    fields.SetFieldProperty("Address", "textsize", (float)6, null);
-                    fields.SetFieldProperty("Enterprise", "textsize", (float)6, null);
+                    fields.SetFieldProperty("Address", "textsize", (float)7, null);
+                    fields.SetFieldProperty("Enterprise", "textsize", (float)7, null);
                     fields.SetFieldProperty("Enterprise", "textfont", unicode, null);
                     fields.SetFieldProperty("Address", "textfont", unicode, null);
 
@@ -367,7 +367,7 @@ namespace HiEIS.Service
                         fields.SetField("TaxNo", invoice.TaxNo);
                         fields.SetField("VATRate", invoice.VATRate == -1 ? "x" : (invoice.VATRate).ToString());
                         fields.SetField("SubTotal", invoice.SubTotal.ToString("#,##0"));
-                        fields.SetField("VATAmount", invoice.VATAmount.ToString("#,##0"));
+                        fields.SetField("VATAmount", invoice.VATRate == -1 ? "x":invoice.VATAmount.ToString("#,##0"));
                         fields.SetField("Total", invoice.Total.ToString("#,##0"));
                         fields.SetField("AmountWords", invoice.AmountInWords);
                     }
