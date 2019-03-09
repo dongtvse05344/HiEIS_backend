@@ -62,8 +62,6 @@ namespace HiEIS_Core.ViewModels
 
         public string Note { get; set; }
         public Guid TemplateId { get; set; }
-        public string StaffId { get; set; }
-        public Guid CustomerId { get; set; }
 
         public List<InvoiceItemCM> InvoiceItemCMs { get; set; }
     }

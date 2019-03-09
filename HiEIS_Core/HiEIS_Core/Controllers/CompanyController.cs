@@ -147,10 +147,11 @@ namespace HiEIS_Core.Controllers
             string html = document.GetElementsByClass("jumbotron").OuterHtml();
             document = Parser.Parse(html, document.BaseUri);
             string[] arr = html.Split("<br />");
-            
-            var company = _companyService.GetCompanys(_ => _.TaxNo.Equals(taxNo)).FirstOrDefault();
-            var companyVM = company.Adapt<CompanyVM>();
-            
+
+            //  var company = _companyService.GetCompanys(_ => _.TaxNo.Equals(taxNo)).FirstOrDefault();
+            // var companyVM = company.Adapt<CompanyVM>();
+
+            var companyVM = new CompanyVM();
             companyVM.Name = document.Select("span").Text;
             foreach (var item in arr)
             {

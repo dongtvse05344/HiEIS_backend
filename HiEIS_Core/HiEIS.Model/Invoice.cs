@@ -11,12 +11,12 @@ namespace HiEIS.Model
         public string Form { get; set; }
         //Kí hiệu
         public string Serial { get; set; }
-        public int Number { get; set; }
+        public string Number { get; set; }
         //Loại HĐ (GTGT / Bán hàng)
         public int Type { get; set; }
         public DateTime Date { get; set; }
         public DateTime DueDate { get; set; }
-        public int PaymentMethod { get; set; }
+        public string PaymentMethod { get; set; }
         public int PaymentStatus { get; set; }
         public string FileUrl { get; set; }
 
@@ -40,14 +40,14 @@ namespace HiEIS.Model
         public string Note { get; set; }
         public Guid TemplateId { get; set; }
         public string StaffId { get; set; }
-        public Guid CustomerId { get; set; }
+     //   public Guid CustomerId { get; set; }
 
         [ForeignKey("StaffId")]
         public virtual Staff Staff { get; set; }
         [ForeignKey("TemplateId")]
         public virtual Template Template { get; set; }
         [ForeignKey("TemplateId")]
-        public virtual Customer Customer { get; set; }
+      //  public virtual Customer Customer { get; set; }
         public virtual ICollection<InvoiceItem> InvoiceItems { get; set; }
     }
 }

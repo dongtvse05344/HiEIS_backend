@@ -3,6 +3,7 @@ using HiEIS.Service;
 using HiEIS_Core.Utils;
 using HiEIS_Core.ViewModels;
 using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -31,6 +32,15 @@ namespace HiEIS_Core.Controllers
             _pdfService = pdfService;
         }
 
+        [HttpGet("AmountInWord/{gNum}")]
+        public ActionResult ToText(double gNum)
+        {
+            return Ok(new
+            {
+                value = _invoiceService.ConvertNumberToWord(gNum)
+            });
+        }
+
         [HttpGet("{id}")]
         public ActionResult GetInvoice(Guid id)
         {
@@ -46,6 +56,7 @@ namespace HiEIS_Core.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost]
         public ActionResult CreateInvoice(InvoiceCM model)
         {
@@ -54,28 +65,23 @@ namespace HiEIS_Core.Controllers
             {
                 var user = _userManager.GetUserAsync(User).Result;
                 var invoice = model.Adapt<Invoice>();
+                invoice.InvoiceItems = new List<InvoiceItem>();
+                foreach (var item in model.InvoiceItemCMs)
+                {
+                    invoice.InvoiceItems.Add(item.Adapt<InvoiceItem>());
+                }
+                invoice.StaffId = user.Id;
                 var template = _templateService.GetTemplate(model.TemplateId);
 
                 invoice.Form = template.Form;
                 invoice.Serial = template.Serial;
-                invoice.Number = template.CurrentNo++;
+                //Trang thai danh so
+                invoice.Number = template.CurrentNo++.ToString();
 
-                var pdfSupport = new PdfSupport();
-                for (int i = 0; i < model.InvoiceItemCMs.Count; i += 10)
-                {
-                    List<InvoiceItem> invoiceItems = new List<InvoiceItem>();
-                    for (int j = i; j < i + 10 || j >= model.InvoiceItemCMs.Count; j++)
-                    {
-                        invoiceItems.Add(model.InvoiceItemCMs[j].Adapt<InvoiceItem>());
-                    }
-                    invoice.InvoiceItems = invoiceItems;
+                string fileName = _fileService.GenerateFileName("Files/"+user.Staff.CompanyId+"/Invoice/"+invoice.TaxNo +".pdf");
 
-                    pdfSupport.PdfDocuments.Add(_pdfService.FillInInvoice(template.FileUrl, invoice));
-                }
-
-                invoice.FileUrl = _fileService.SaveFile(user.Staff.CompanyId.ToString(), nameof(FileType.Invoice), pdfSupport.PdfDocuments, template.CurrentNo);
-                
-                invoice.StaffId = user.Staff.Id;
+                invoice.FileUrl = _invoiceService.GenerateFinalPdf(fileName, invoice, template.FileUrl);
+                fileUrl = invoice.FileUrl;
                 _invoiceService.CreateInvoice(invoice);
                 
                 _invoiceService.SaveChanges();

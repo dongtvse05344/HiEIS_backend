@@ -7,7 +7,6 @@ namespace HiEIS_Core.ViewModels
 {
     public class InvoiceItemCM
     {
-        public Guid InvoiceId { get; set; }
         public Guid ProductId { get; set; }
         public string Name { get; set; }
         public string Unit { get; set; }

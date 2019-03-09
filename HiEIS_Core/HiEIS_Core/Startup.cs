@@ -70,11 +70,18 @@ namespace HiEIS_Core
             //Product
             services.AddTransient<IProductRepository, ProductRepository>();
             services.AddTransient<IProductService, ProductService>();
+
+            //Invoice
+            services.AddTransient<IInvoiceRepository, InvoiceRepository>();
+            services.AddTransient<IInvoiceService, InvoiceService>();
+
             //Template
             services.AddTransient<ITemplateRepository, TemplateRepository>();
             services.AddTransient<ITemplateService, TemplateService>();
-
+            //File
             services.AddTransient<IFileService, FileService>();
+
+            //PDF
             services.AddTransient<IPdfService, PdfService>();
 
             #endregion

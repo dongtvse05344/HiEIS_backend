@@ -2,24 +2,25 @@
 using IronPdf;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace HiEIS.Service
 {
     public interface IPdfService
     {
-        PdfDocument FillInInvoice(string fileUrl, Invoice invoice);
+        PdfDocument FillInInvoice(string fileUrl, Invoice invoice, bool IsLastPage);
     }
 
     public class PdfService : IPdfService
     {
-        public PdfDocument FillInInvoice(string fileUrl, Invoice invoice)
+        public PdfDocument FillInInvoice(string fileUrl, Invoice invoice, bool IsLastPage)
         {
             try
             {
                 var pdf = PdfDocument.FromFile(fileUrl);
                 var formFields = pdf.Form;
-                
+
                 formFields.GetFieldByName("Form").Value = invoice.Form;
                 formFields.GetFieldByName("Serial").Value = invoice.Serial;
                 formFields.GetFieldByName("Number").Value = invoice.Number.ToString();//***
@@ -37,7 +38,6 @@ namespace HiEIS.Service
                 formFields.GetFieldByName("Bank").Value = invoice.Bank;
                 formFields.GetFieldByName("PaymentMethod").Value = invoice.PaymentMethod.ToString();//***
                 formFields.GetFieldByName("TaxNo").Value = invoice.TaxNo;
-
                 int i = 0;
                 foreach (var item in invoice.InvoiceItems)
                 {
@@ -50,12 +50,14 @@ namespace HiEIS.Service
                     i++;
                 }
 
-                formFields.GetFieldByName("VATRate").Value = invoice.VATRate.ToString();//***
-                formFields.GetFieldByName("SubTotal").Value = invoice.SubTotal.ToString();//***
-                formFields.GetFieldByName("VATAmount").Value = invoice.VATAmount.ToString();//***
-                formFields.GetFieldByName("Total").Value = invoice.Total.ToString();//***
-                formFields.GetFieldByName("AmountWords").Value = invoice.AmountInWords;
-                
+                if(IsLastPage)
+                {
+                    formFields.GetFieldByName("VATRate").Value = invoice.VATRate.ToString();//***
+                    formFields.GetFieldByName("SubTotal").Value = invoice.SubTotal.ToString();//***
+                    formFields.GetFieldByName("VATAmount").Value = invoice.VATAmount.ToString();//***
+                    formFields.GetFieldByName("Total").Value = invoice.Total.ToString();//***
+                    formFields.GetFieldByName("AmountWords").Value = invoice.AmountInWords;
+                }
                 return pdf;
             }
             catch (Exception e)

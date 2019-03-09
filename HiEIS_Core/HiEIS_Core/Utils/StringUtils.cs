@@ -21,6 +21,7 @@ namespace HiEIS_Core.Utils
                 .Replace("&oacute;", "ó").Replace("&uacute;", "ú")
                 .Replace("&Acirc;", "Â").Replace("&Ecirc;", "Ê")
                 .Replace("&Ocirc;", "Ô").Replace("&acirc;", "â")
+                .Replace("&Otilde;;", "Ã").Replace("&atilde;", "ã")
                 .Replace("&ecirc;", "ê").Replace("&ocirc;", "ô");
         }
     }

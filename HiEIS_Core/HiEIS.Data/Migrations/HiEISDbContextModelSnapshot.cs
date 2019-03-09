@@ -97,23 +97,33 @@ namespace HiEIS.Data.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("Address");
+
                     b.Property<string>("AmountInWords");
 
-                    b.Property<Guid>("CustomerId");
+                    b.Property<string>("Bank");
+
+                    b.Property<string>("BankAccountNumber");
 
                     b.Property<DateTime>("Date");
 
                     b.Property<DateTime>("DueDate");
 
+                    b.Property<string>("Enterprise");
+
+                    b.Property<string>("Fax");
+
                     b.Property<string>("FileUrl");
 
                     b.Property<string>("Form");
+
+                    b.Property<string>("Name");
 
                     b.Property<string>("Note");
 
                     b.Property<string>("Number");
 
-                    b.Property<int>("PaymentMethod");
+                    b.Property<string>("PaymentMethod");
 
                     b.Property<int>("PaymentStatus");
 
@@ -122,6 +132,10 @@ namespace HiEIS.Data.Migrations
                     b.Property<string>("StaffId");
 
                     b.Property<float>("SubTotal");
+
+                    b.Property<string>("TaxNo");
+
+                    b.Property<string>("Tel");
 
                     b.Property<Guid>("TemplateId");
 
@@ -149,13 +163,21 @@ namespace HiEIS.Data.Migrations
 
                     b.Property<Guid>("InvoiceId");
 
+                    b.Property<string>("Name");
+
                     b.Property<Guid>("ProductId");
 
                     b.Property<int>("Quantity");
 
-                    b.HasKey("Id");
+                    b.Property<Guid?>("TemplateId");
 
-                    b.HasIndex("InvoiceId");
+                    b.Property<float>("Total");
+
+                    b.Property<string>("Unit");
+
+                    b.Property<float>("UnitPrice");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("ProductId");
 
@@ -425,11 +447,6 @@ namespace HiEIS.Data.Migrations
                     b.HasOne("HiEIS.Model.Staff", "Staff")
                         .WithMany("Invoices")
                         .HasForeignKey("StaffId");
-
-                    b.HasOne("HiEIS.Model.Customer", "Customer")
-                        .WithMany("Invoices")
-                        .HasForeignKey("TemplateId")
-                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("HiEIS.Model.Template", "Template")
                         .WithMany("Invoices")
