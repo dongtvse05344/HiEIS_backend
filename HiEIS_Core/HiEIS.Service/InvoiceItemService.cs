@@ -17,6 +17,7 @@ namespace HiEIS.Service
         void CreateInvoiceItem(InvoiceItem invoiceItem);
         void UpdateInvoiceItem(InvoiceItem invoiceItem);
         void DeleteInvoiceItem(InvoiceItem invoiceItem);
+        void DeleteInvoiceItem(Expression<Func<InvoiceItem, bool>> where);
         void SaveChanges();
     }
 
@@ -38,7 +39,12 @@ namespace HiEIS.Service
 
         public void DeleteInvoiceItem(InvoiceItem invoiceItem)
         {
-            throw new NotImplementedException();
+            _repository.Delete(invoiceItem); 
+        }
+
+        public void DeleteInvoiceItem(Expression<Func<InvoiceItem, bool>> where)
+        {
+            _repository.Delete(where);
         }
 
         public InvoiceItem GetInvoiceItem(Guid invoiceId, Guid productId)

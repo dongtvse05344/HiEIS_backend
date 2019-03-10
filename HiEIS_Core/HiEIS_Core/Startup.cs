@@ -75,6 +75,10 @@ namespace HiEIS_Core
             services.AddTransient<IInvoiceRepository, InvoiceRepository>();
             services.AddTransient<IInvoiceService, InvoiceService>();
 
+            //InvoiceItem
+            services.AddTransient<IInvoiceItemRepository, InvoiceItemRepository>();
+            services.AddTransient<IInvoiceItemService, InvoiceItemService>();
+
             //Template
             services.AddTransient<ITemplateRepository, TemplateRepository>();
             services.AddTransient<ITemplateService, TemplateService>();

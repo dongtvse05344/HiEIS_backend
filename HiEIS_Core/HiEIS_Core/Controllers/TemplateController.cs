@@ -206,7 +206,7 @@ namespace HiEIS_Core.Controllers
             }
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public ActionResult DeleteTemplate(Guid id)
         {
             try

@@ -44,7 +44,7 @@ namespace HiEIS.Service
 
         public void DeleteInvoice(Invoice invoice)
         {
-            throw new NotImplementedException();
+            _repository.Delete(invoice);
         }
 
         public Invoice GetInvoice(Guid id)
@@ -252,16 +252,17 @@ namespace HiEIS.Service
         public string GenerateFinalPdf(string fileName, Invoice invoice, string fileTemplate)
         {
             var pages = Math.Ceiling(invoice.InvoiceItems.Count / 10d);
-            var pdf = new Invoice();
+            var temp = invoice.InvoiceItems;
+            var pdf = invoice;
             List<string> generatedFiles = new List<string>();
 
-            pdf = invoice.Adapt<Invoice>();
+            //pdf = invoice.Adapt<Invoice>();
             fileName = fileName.Replace(".pdf", ""); //remove extension
 
             for (int i = 0; i < pages; i++)
             {
                 bool isLastPage = (i == (pages - 1)) ? true : false;
-                pdf.InvoiceItems = invoice.InvoiceItems
+                pdf.InvoiceItems = temp
                     .Skip(10 * i)
                     .Take(10)
                     .ToList();
@@ -270,6 +271,7 @@ namespace HiEIS.Service
 
                 string newFileUrl = Path.Combine(Directory.GetCurrentDirectory(), newFile);
                 generatedFiles.Add(newFileUrl);
+                invoice.InvoiceItems = temp;
             }
             return MergePdfFiles(generatedFiles, fileName + ".pdf");
         }
@@ -313,7 +315,6 @@ namespace HiEIS.Service
             }
             return outputFile;
         }
-
         private void FillDataPdf(string fileName, Invoice invoice, bool IsLastPage, string fileTemplate)
         {
             fileTemplate = Path.Combine(Directory.GetCurrentDirectory(), fileTemplate);
@@ -331,10 +332,20 @@ namespace HiEIS.Service
                     // set Text Size
 
                     AcroFields fields = pdfStamper.AcroFields;
-                    fields.SetFieldProperty("Address", "textsize", (float)7, null);
-                    fields.SetFieldProperty("Enterprise", "textsize", (float)7, null);
+                    fields.SetFieldProperty("Address", "textsize", (float)8, null);
+                    fields.SetFieldProperty("Enterprise", "textsize", (float)8, null);
                     fields.SetFieldProperty("Enterprise", "textfont", unicode, null);
                     fields.SetFieldProperty("Address", "textfont", unicode, null);
+                    fields.SetFieldProperty("Name", "textfont", unicode, null);
+                    fields.SetFieldProperty("PaymentMethod", "textfont", unicode, null);
+                    fields.SetFieldProperty("Day", "textfont", unicode, null);
+                    fields.SetFieldProperty("Month", "textfont", unicode, null);
+                    fields.SetFieldProperty("Year", "textfont", unicode, null);
+                    fields.SetFieldProperty("Bank", "textfont", unicode, null);
+                    fields.SetFieldProperty("TaxNo", "textfont", unicode, null);
+                    fields.SetFieldProperty("BankAccountNumber", "textfont", unicode, null);
+                    fields.SetFieldProperty("Tel", "textfont", unicode, null);
+                    fields.SetFieldProperty("Fax", "textfont", unicode, null);
 
                     fields.SetField("Form", invoice.Form);
                     fields.SetField("Serial", invoice.Serial);
@@ -356,7 +367,9 @@ namespace HiEIS.Service
                     for (int i = 0; i < invoice.InvoiceItems.Count; i++)
                     {
                         var item = invoice.InvoiceItems.ElementAt(i);
+                        fields.SetFieldProperty("ProductName" + i, "textsize", (float)10, null);
                         fields.SetField("ProductName" + i, item.Name);
+
                         fields.SetField("Unit" + i, item.Unit);
                         fields.SetField("Quantity" + i, item.Quantity.ToString());
                         fields.SetField("UnitPrice" + i, item.UnitPrice.ToString("#,##0"));
@@ -379,7 +392,6 @@ namespace HiEIS.Service
                 }
                 catch (Exception ex)
                 {
-
                     throw;
                 }
             }

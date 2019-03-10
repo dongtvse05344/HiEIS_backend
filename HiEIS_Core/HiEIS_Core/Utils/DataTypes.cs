@@ -13,6 +13,13 @@ namespace HiEIS_Core.Utils
         Template,
         Invoice 
     }
+    public enum InvoiceType
+    {
+        New = 0,
+        Approve =1,
+        Signed = 3,
+        Reject = 4
+    }
     public enum UserRoles
     {
         [Display(Name = "Quản trị hệ thống")]

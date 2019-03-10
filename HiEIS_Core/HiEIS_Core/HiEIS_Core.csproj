@@ -23,4 +23,8 @@
     <ProjectReference Include="..\HiEIS.Service\HiEIS.Service.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Files\6ac10c3e-8edd-452b-52c1-08d683a3fc3b\Invoice\" />
+  </ItemGroup>
+
 </Project>
