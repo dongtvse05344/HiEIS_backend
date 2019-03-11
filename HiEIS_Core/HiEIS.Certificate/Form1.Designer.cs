@@ -41,6 +41,7 @@
             this.btnSign.TabIndex = 0;
             this.btnSign.Text = "Kí";
             this.btnSign.UseVisualStyleBackColor = true;
+            this.btnSign.Click += new System.EventHandler(this.btnSign_Click);
             // 
             // txtCode
             // 
