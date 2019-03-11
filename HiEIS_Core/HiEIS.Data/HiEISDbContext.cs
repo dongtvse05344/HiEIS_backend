@@ -30,6 +30,8 @@ namespace HiEIS.Data
         public DbSet<Staff> Staffs { get; set; }
         public DbSet<Template> Templates { get; set; }
         //public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<CurrentSign> CurrentSigns { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
