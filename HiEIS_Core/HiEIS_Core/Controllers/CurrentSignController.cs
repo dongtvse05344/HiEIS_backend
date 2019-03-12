@@ -1,4 +1,5 @@
-﻿using HiEIS.Model;
+﻿using Hangfire;
+using HiEIS.Model;
 using HiEIS.Service;
 using HiEIS_Core.Utils;
 using HiEIS_Core.ViewModels;
@@ -35,7 +36,6 @@ namespace HiEIS_Core.Controllers
             {
                 var user = _userManager.GetUserAsync(User).Result;
                 var companyId = user.Staff.CompanyId;
-                
                 var currentSign = _currentSignService.GetCurrentSigns(_ => _.CompanyId == companyId).FirstOrDefault();
                 if (currentSign != null) return BadRequest("Mã đã được tạo!");
                 
@@ -54,10 +54,12 @@ namespace HiEIS_Core.Controllers
                 {
                     Code = code,
                     CompanyId = companyId,
-                    DateExpiry = DateTime.Now.Add(new TimeSpan(1, 0, 0))
+                    DateExpiry = DateTime.Now.AddHours(1)
                 };
 
                 _currentSignService.CreateCurrentSign(currentSign);
+                BackgroundJob.Schedule(() => this.Delete(code)
+                , TimeSpan.FromHours(1));
                 _currentSignService.SaveChanges();
 
                 return StatusCode(201, code);
@@ -89,8 +91,9 @@ namespace HiEIS_Core.Controllers
                 } while (_currentSignService.GetCurrentSigns(_ => _.Code.Equals(code)).FirstOrDefault() != null);
 
                 currentSign.Code = code;
-                currentSign.DateExpiry = DateTime.Now.Add(new TimeSpan(1, 0, 0));
-
+                currentSign.DateExpiry = DateTime.Now.AddHours(1);
+                BackgroundJob.Schedule(()=> this.Delete(code)
+                , TimeSpan.FromHours(1));
                 _currentSignService.UpdateCurrentSign(currentSign);
                 _currentSignService.SaveChanges();
 
@@ -101,7 +104,14 @@ namespace HiEIS_Core.Controllers
                 return BadRequest(e.Message);
             }
         }
-        
+
+        public void Delete(string code)
+        {
+            var currentSign = _currentSignService.GetCurrentSigns(_ => _.Code.Equals(code)).FirstOrDefault();
+            _currentSignService.DeleteCurrentSign(currentSign);
+            _currentSignService.SaveChanges();
+        }
+
         [HttpGet("ApproveInvoices")]
         public ActionResult GetInvoices(string code)
         {

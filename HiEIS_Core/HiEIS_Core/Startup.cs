@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hangfire;
 using HiEIS.Data;
 using HiEIS.Data.Infrastructures;
 using HiEIS.Data.Repositories;
@@ -173,6 +174,8 @@ namespace HiEIS_Core
             services.AddCors(options =>
             //options.AddPolicy("AllowAll", builder => builder.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:4200").AllowCredentials()));
             options.AddPolicy("AllowAll", builder => builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin()));
+
+            services.AddHangfire(x => x.UseSqlServerStorage(@"Server=116.193.73.123;Database=qtsc-crm-hangfire;user id=sa;password=zaq@123;Trusted_Connection=True;Integrated Security=false;"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -235,6 +238,12 @@ namespace HiEIS_Core
             #region MapsterMapper
             MapsterConfig map = new MapsterConfig();
             map.Run();
+            #endregion
+
+            #region Hangfire
+            app.UseHangfireDashboard();
+            app.UseHangfireServer();
+            
             #endregion
         }
     }

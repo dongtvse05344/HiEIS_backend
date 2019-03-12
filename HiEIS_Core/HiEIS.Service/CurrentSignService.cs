@@ -38,7 +38,7 @@ namespace HiEIS.Service
 
         public void DeleteCurrentSign(CurrentSign currentSign)
         {
-            throw new NotImplementedException();
+            _currentSignRepository.Delete(currentSign);
         }
 
         public CurrentSign GetCurrentSign(Guid id)
