@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,6 +17,12 @@ namespace HiEIS_Core.ViewModels
         public int PaymentStatus { get; set; }
         public float Total { get; set; }
         public string Note { get; set; }
+    }
+
+    public class InvoiceSigned
+    {
+        public Guid CompanyId { get; set; }
+        public List<IFormFile> FileContents { get; set; }
     }
 
     public class InvoiceCM

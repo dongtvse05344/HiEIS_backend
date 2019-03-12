@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace HiEIS_Core.Controllers
@@ -24,8 +25,10 @@ namespace HiEIS_Core.Controllers
         private readonly ITemplateService _templateService;
         private readonly IPdfService _pdfService;
         private readonly IInvoiceItemService _invoiceItemService;
-        private const string  formatNumber = "0000000";
-        public InvoiceController(IInvoiceService invoiceService, UserManager<MyUser> userManager, IFileService fileService, ITemplateService templateService, IPdfService pdfService, IInvoiceItemService invoiceItemService)
+        private const string formatNumber = "0000000";
+        private readonly ICompanyService _companyService;
+
+        public InvoiceController(IInvoiceService invoiceService, UserManager<MyUser> userManager, IFileService fileService, ITemplateService templateService, IPdfService pdfService, IInvoiceItemService invoiceItemService, ICompanyService companyService)
         {
             _invoiceService = invoiceService;
             _userManager = userManager;
@@ -33,6 +36,7 @@ namespace HiEIS_Core.Controllers
             _templateService = templateService;
             _pdfService = pdfService;
             _invoiceItemService = invoiceItemService;
+            _companyService = companyService;
         }
 
         [Authorize]
@@ -119,7 +123,7 @@ namespace HiEIS_Core.Controllers
 
                 invoice.Form = template.Form;
                 invoice.Serial = template.Serial;
-                if(invoice.Type == (int)InvoiceType.Approve)
+                if (invoice.Type == (int)InvoiceType.Approve)
                 {
                     //Trang thai danh so
                     invoice.Number = template.CurrentNo++.ToString(formatNumber);
@@ -128,12 +132,13 @@ namespace HiEIS_Core.Controllers
                 {
                     invoice.Type = (int)InvoiceType.New;
                 }
-                string fileName = _fileService.GenerateFileName("Files/"+user.Staff.CompanyId+"/Invoice/"+invoice.TaxNo +".pdf");
+                string fileName = _fileService.GenerateFileName("Files/" + user.Staff.CompanyId + "/Invoice/" + invoice.TaxNo + ".pdf");
 
                 invoice.FileUrl = _invoiceService.GenerateFinalPdf(fileName, invoice, template.FileUrl);
                 fileUrl = invoice.FileUrl;
                 _invoiceService.CreateInvoice(invoice);
-                
+                _invoiceService.SaveChanges();
+                invoice.LockupCode = invoice.No.ToString("000000");
                 _invoiceService.SaveChanges();
                 return StatusCode(201, invoice.Id);
             }
@@ -152,7 +157,7 @@ namespace HiEIS_Core.Controllers
         [HttpPut]
         public ActionResult UpdateInvoice(InvoiceUM model)
         {
-            string fileUrl =null;
+            string fileUrl = null;
             try
             {
                 _invoiceItemService.DeleteInvoiceItem(_ => _.InvoiceId.Equals(model.Id));
@@ -182,7 +187,7 @@ namespace HiEIS_Core.Controllers
                     invoice.Type = (int)InvoiceType.New;
                 }
 
-                string fileName = _fileService.GenerateFileName("Files/" + user.Staff.CompanyId + "/"+ nameof(FileType.Invoice) + "/" + invoice.TaxNo + ".pdf");
+                string fileName = _fileService.GenerateFileName("Files/" + user.Staff.CompanyId + "/" + nameof(FileType.Invoice) + "/" + invoice.TaxNo + ".pdf");
                 invoice.FileUrl = _invoiceService.GenerateFinalPdf(fileName, invoice, template.FileUrl);
                 fileUrl = invoice.FileUrl;
 
@@ -250,7 +255,7 @@ namespace HiEIS_Core.Controllers
             {
                 var invoice = _invoiceService.GetInvoice(id);
                 if (invoice == null) return NotFound();
-                if(invoice.Type == (int) InvoiceType.New)
+                if (invoice.Type == (int)InvoiceType.New)
                 {
                     _invoiceItemService.DeleteInvoiceItem(_ => _.InvoiceId.Equals(invoice.Id));
                     _invoiceService.DeleteInvoice(invoice);
@@ -281,22 +286,6 @@ namespace HiEIS_Core.Controllers
             }
         }
 
-        [HttpGet("LookupCode")]
-        public ActionResult LookupCode(Guid id)
-        {
-            try
-            {
-                var invoice = _invoiceService.GetInvoice(id);
-                if (invoice == null) return NotFound();
-
-                return Ok(invoice.LookupCode.ToString());
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
         [Authorize]
         [HttpPost("Cancel")]
         public ActionResult Cancel(Guid id)
@@ -316,6 +305,41 @@ namespace HiEIS_Core.Controllers
             {
                 return BadRequest(e.Message);
             }
+        }
+
+        [HttpPost("/ReceiveInvoiceSigned")]
+        public async Task<ActionResult> ReceiveSignedInvoice([FromForm]InvoiceSigned models)
+        {
+            var company = _companyService.GetCompany(models.CompanyId);
+            if (company == null) return BadRequest("Unvaliable Company");
+
+            // string fileName = _fileService.GenerateFileName("Files/" + company.Id + "/Invoice/" + invoice.TaxNo + ".pdf");
+
+            foreach (var item in models.FileContents)
+            {
+                string newUrl = null;
+                try
+                {
+                    var invoice = _invoiceService.GetInvoice(Guid.Parse(item.FileName));
+                    if (invoice == null) continue;
+                    string fileName = _fileService.GenerateFileName("Files/" + company.Id + "/"+ nameof(FileType.Invoice) + "/" +invoice.LockupCode +".pdf");
+                    var oldUrl = invoice.FileUrl;
+                    invoice.FileUrl = _invoiceService.GenerateFinalPdf(fileName, invoice, invoice.Template.FileUrl);
+                    invoice.Type = (int)InvoiceType.Signed;
+                    newUrl = invoice.FileUrl;
+                    _invoiceService.SaveChanges();
+                    _fileService.DeleteFile(oldUrl);
+                }
+                catch (Exception)
+                {
+                    if (newUrl != null)
+                    {
+                        _fileService.DeleteFile(newUrl);
+                    }
+                    continue;
+                }
+            }
+            return Ok();
         }
     }
 }

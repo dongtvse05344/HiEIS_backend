@@ -8,8 +8,8 @@ namespace HiEIS.Model
     public class Invoice : BaseEntity
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int LookupCode { get; set; }
-
+        public int No { get; set; }
+        public string LockupCode { get; set; }
         //Mẫu số
         public string Form { get; set; }
         //Kí hiệu

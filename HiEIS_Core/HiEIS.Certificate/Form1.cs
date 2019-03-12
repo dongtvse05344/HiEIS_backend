@@ -16,7 +16,7 @@ namespace HiEIS.Certificate
 {
     public partial class Main : Form
     {
-        private static string _uri = "http://einvoice.hisoft.vn/";
+        private static string _uri = "http://dongtv.hisoft.vn/";
 
         private List<DataModel> data = null;
         public Main()
@@ -24,7 +24,7 @@ namespace HiEIS.Certificate
             InitializeComponent();
         }
 
-        private async void GetDataFromServer()
+        private async Task GetDataFromServer()
         {
             using (var httpClient = new HttpClient())
             {
@@ -54,13 +54,12 @@ namespace HiEIS.Certificate
                 {
                     var path = data[i].Path;
                     var pdfByte = Utils.SignWithThisCert(cert, path, "a");
-                    var fileName = Path.GetFileName(path);
 
                     client.BaseAddress = new Uri(_uri);
                     var outputPDF = pdfByte;
-                    outputPDF.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+                    outputPDF.Headers.ContentDisposition = new ContentDispositionHeaderValue("FileContents")
                     {
-                        FileName = data[i].Id + "_" + fileName
+                        FileName = data[i].Id
                     };
                     content.Add(outputPDF);
                 }
@@ -73,11 +72,11 @@ namespace HiEIS.Certificate
             }
         }
         
-        private void btnSign_Click(object sender, EventArgs e)
+        private async void btnSign_Click(object sender, EventArgs e)
         {
             try
             {
-                GetDataFromServer();
+                await GetDataFromServer();
                 Signing();
                 MessageBox.Show("Đã kí thành công");
             }
