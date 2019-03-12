@@ -267,5 +267,55 @@ namespace HiEIS_Core.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpPost("Sign")]
+        public ActionResult Sign()
+        {
+            try
+            {
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("LookupCode")]
+        public ActionResult LookupCode(Guid id)
+        {
+            try
+            {
+                var invoice = _invoiceService.GetInvoice(id);
+                if (invoice == null) return NotFound();
+
+                return Ok(invoice.LookupCode.ToString());
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpPost("Cancel")]
+        public ActionResult Cancel(Guid id)
+        {
+            try
+            {
+                var invoice = _invoiceService.GetInvoice(id);
+                if (invoice == null) return NotFound();
+                if (invoice.Type == (int)InvoiceType.New) return BadRequest("Không thể hủy hóa đơn này!");
+
+                invoice.Type = (int)InvoiceType.Reject;
+                _invoiceService.SaveChanges();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
