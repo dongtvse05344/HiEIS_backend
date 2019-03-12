@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,7 +16,7 @@ namespace HiEIS.Certificate
 {
     public partial class Main : Form
     {
-        private static String _uri = "http://einvoice.hisoft.vn/";
+        private static string _uri = "http://einvoice.hisoft.vn/";
 
         private List<DataModel> data = null;
         public Main()
@@ -23,10 +24,22 @@ namespace HiEIS.Certificate
             InitializeComponent();
         }
 
-        private void GetDataFromServer()
+        private async void GetDataFromServer()
         {
+            using (var httpClient = new HttpClient())
+            {
+                var apiUri = new Uri(_uri + "api/CurrentSign/ApproveInvoices");
 
+                var response = await httpClient
+                    .GetAsync(apiUri + "?code=" + txtCode.Text.Trim())
+                    .ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
+
+                var resContent = await response.Content.ReadAsStringAsync();
+                data = JsonConvert.DeserializeObject<List<DataModel>>(resContent);
+            }
         }
+
         private void Signing()
         {
             var cert = Utils.GetCertificate();

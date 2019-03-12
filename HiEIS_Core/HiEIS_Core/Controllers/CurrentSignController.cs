@@ -14,7 +14,6 @@ namespace HiEIS_Core.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class CurrentSignController : ControllerBase
     {
         private readonly UserManager<MyUser> _userManager;
@@ -28,7 +27,8 @@ namespace HiEIS_Core.Controllers
             _invoiceService = invoiceService;
         }
         
-        [HttpPost("generateCode")]
+        [Authorize]
+        [HttpPost("GenerateCode")]
         public ActionResult GenerateCode()
         {
             try
@@ -68,7 +68,8 @@ namespace HiEIS_Core.Controllers
             }
         }
         
-        [HttpPost("regenerateCode")]
+        [Authorize]
+        [HttpPost("RegenerateCode")]
         public ActionResult RegenerateCode()
         {
             try
@@ -102,12 +103,15 @@ namespace HiEIS_Core.Controllers
         }
         
         [HttpGet("ApproveInvoices")]
-        public ActionResult GetInvoices()
+        public ActionResult GetInvoices(string code)
         {
             try
             {
-                var user = _userManager.GetUserAsync(User).Result;
-                var companyId = user.Staff.CompanyId;
+                var currentSign = _currentSignService.GetCurrentSigns(_ => _.Code.Equals(code)).FirstOrDefault();
+                if (currentSign == null) return BadRequest("Nhập mã sai!");
+                if (currentSign.DateExpiry < DateTime.Now) return BadRequest("Mã đã hết hạn!");
+
+                var companyId = currentSign.CompanyId;
                 var invoices = _invoiceService.GetInvoices(_ => _.Template.CompanyId == companyId && _ .Type == (int)InvoiceType.Approve);
                 if (invoices == null) return NotFound();
 
