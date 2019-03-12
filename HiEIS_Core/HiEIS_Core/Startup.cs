@@ -63,6 +63,10 @@ namespace HiEIS_Core
             services.AddTransient<IMyUserRepository, MyUserRepository>();
             services.AddTransient<IMyUserService, MyUserService>();
 
+            //CurrentSign
+            services.AddTransient<ICurrentSignRepository, CurrentSignRepository>();
+            services.AddTransient<ICurrentSignService, CurrentSignService>();
+
             //Company
             services.AddTransient<ICompanyRepository, CompanyRepository>();
             services.AddTransient<ICompanyService, CompanyService>();
