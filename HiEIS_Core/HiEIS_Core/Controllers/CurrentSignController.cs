@@ -125,13 +125,16 @@ namespace HiEIS_Core.Controllers
                 var invoices = _invoiceService.GetInvoices(_ => _.Template.CompanyId == companyId && _ .Type == (int)InvoiceType.Approve);
                 if (invoices == null) return NotFound();
 
-                List<CurrentSignVM> result = new List<CurrentSignVM>();
+                CurrentSignVM result = new CurrentSignVM();
+                result.CompanyId = currentSign.CompanyId;
+                result.Type = "Invoice";
+                result.fileContents = new List<FileContent>();
                 foreach (var item in invoices)
                 {
-                    result.Add(new CurrentSignVM
+                    result.fileContents.Add(new FileContent
                     {
                         Id = item.Id,
-                        Path = item.FileUrl
+                        Path = "/api/invoice/"+item.Id+"/file"
                     });
                 }
 

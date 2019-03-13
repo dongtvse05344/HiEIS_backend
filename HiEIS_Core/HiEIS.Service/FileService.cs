@@ -13,6 +13,8 @@ namespace HiEIS.Service
         void CreateFolder(string companyName);
         string GenerateFileName(string fileName);
         Task<string> SaveFile(string companyId, string type, IFormFile file);
+        Task<string> SaveFile(string companyId, string type, IFormFile file,string fileName);
+
         string SaveFile(string companyId, string type, List<PdfDocument> pdfDocuments, int currentNo);
         Task<FileSupport> GetFile(string url);
         void DeleteFile(string url);
@@ -102,6 +104,25 @@ namespace HiEIS.Service
             catch (Exception e)
             {
                 throw e;
+            }
+        }
+
+        public async Task<string> SaveFile(string companyId, string type, IFormFile file, string fileName)
+        {
+            string path = Path.Combine(Directory.GetCurrentDirectory(),
+                                "Files", companyId, type,
+                                fileName);
+            try
+            {
+                using (var bits = new FileStream(path, FileMode.Create))
+                {
+                    await file.CopyToAsync(bits);
+                }
+                return "Files\\" + companyId + "\\" + type + "\\" + fileName;
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
 

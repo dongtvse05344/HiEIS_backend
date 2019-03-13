@@ -16,9 +16,10 @@ namespace HiEIS.Certificate
 {
     public partial class Main : Form
     {
-        private static string _uri = "http://dongtv.hisoft.vn/";
+        //private static string _uri = "http://dongtv.hisoft.vn/";
+        private static string _uri = "https://localhost:44326/";
 
-        private List<DataModel> data = null;
+        private DataModel data = null;
         public Main()
         {
             InitializeComponent();
@@ -36,7 +37,11 @@ namespace HiEIS.Certificate
                 response.EnsureSuccessStatusCode();
 
                 var resContent = await response.Content.ReadAsStringAsync();
-                data = JsonConvert.DeserializeObject<List<DataModel>>(resContent);
+                data = JsonConvert.DeserializeObject<DataModel>(resContent);
+                foreach (var item in data.fileContents)
+                {
+                    item.Path = _uri + item.Path;
+                }
             }
         }
 
@@ -48,24 +53,25 @@ namespace HiEIS.Certificate
                 throw new Exception("Không nhận diện được chữ kí số, vui lòng kiểm tra lại");
             }
             using (var client = new HttpClient())
-            using (var content = new MultipartFormDataContent())
+            using (var content = new MultipartFormDataContent("upload----"+DateTime.Now.ToString()))
             {
-                for (var i = 0; i < data.Count(); i++)
+                client.BaseAddress = new Uri(_uri);
+                content.Add(new StringContent(data.CompanyId.ToString()), "companyId");
+                for (var i = 0; i < data.fileContents.Count(); i++)
                 {
-                    var path = data[i].Path;
-                    var pdfByte = Utils.SignWithThisCert(cert, path, "a");
-
-                    client.BaseAddress = new Uri(_uri);
+                    var path = data.fileContents[i].Path;
+                    var pdfByte = Utils.SignWithThisCert(cert, path, data.Type);
                     var outputPDF = pdfByte;
+
                     outputPDF.Headers.ContentDisposition = new ContentDispositionHeaderValue("FileContents")
                     {
-                        FileName = data[i].Id
+                        FileName = data.fileContents[i].Id +".pdf"
                     };
-                    content.Add(outputPDF);
+                    content.Add(new StreamContent(new MemoryStream(outputPDF.ReadAsByteArrayAsync().Result)), "FileContents",
+                                data.fileContents[i].Id+".pdf");
                 }
-                Boolean result = false;
-                result = client.PostAsync("/api/Invoice/Sign", content).Result.IsSuccessStatusCode;
-                if (!result)
+                var result = client.PostAsync("/api/Invoice/ReceiveInvoiceSigned", content).Result;
+                if (!result.IsSuccessStatusCode)
                 {
                     throw new Exception("Có lỗi xảy ra, vui lòng thử lại !!!");
                 }
@@ -85,6 +91,11 @@ namespace HiEIS.Certificate
                 MessageBox.Show(ex.Message);
             }
             
+        }
+
+        private void Main_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

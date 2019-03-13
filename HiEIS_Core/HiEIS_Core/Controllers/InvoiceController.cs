@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -307,30 +308,29 @@ namespace HiEIS_Core.Controllers
             }
         }
 
-        [HttpPost("/ReceiveInvoiceSigned")]
+        [HttpPost("ReceiveInvoiceSigned")]
         public async Task<ActionResult> ReceiveSignedInvoice([FromForm]InvoiceSigned models)
         {
             var company = _companyService.GetCompany(models.CompanyId);
             if (company == null) return BadRequest("Unvaliable Company");
-
-            // string fileName = _fileService.GenerateFileName("Files/" + company.Id + "/Invoice/" + invoice.TaxNo + ".pdf");
-
+           // string fileName = _fileService.GenerateFileName("Files/" + company.Id + "/Invoice/" + invoice.TaxNo + ".pdf");
             foreach (var item in models.FileContents)
             {
                 string newUrl = null;
                 try
                 {
-                    var invoice = _invoiceService.GetInvoice(Guid.Parse(item.FileName));
+                    var invoiceId = Path.GetFileNameWithoutExtension(item.FileName);
+                    var invoice = _invoiceService.GetInvoice(Guid.Parse(invoiceId));
                     if (invoice == null) continue;
-                    string fileName = _fileService.GenerateFileName("Files/" + company.Id + "/"+ nameof(FileType.Invoice) + "/" +invoice.LockupCode +".pdf");
+                    string fileName = _fileService.GenerateFileName(invoice.LockupCode +".pdf");
                     var oldUrl = invoice.FileUrl;
-                    invoice.FileUrl = _invoiceService.GenerateFinalPdf(fileName, invoice, invoice.Template.FileUrl);
+                    invoice.FileUrl = _fileService.SaveFile(company.Id.ToString(), nameof(FileType.Invoice), item,fileName).Result;
                     invoice.Type = (int)InvoiceType.Signed;
                     newUrl = invoice.FileUrl;
                     _invoiceService.SaveChanges();
                     _fileService.DeleteFile(oldUrl);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     if (newUrl != null)
                     {

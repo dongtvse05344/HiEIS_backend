@@ -13,7 +13,8 @@ namespace HiEIS.Certificate
 {
     public class Utils
     {
-        const string fileNew = @"D:\Signed\signed-{0}";
+        const string folderNew = @"D:\Signed\{0}";
+        const string fileNew = @"D:\Signed\{0}\signed-{1}";
         public static X509Certificate2 GetCertificate()
         {
             X509Store userCaStore = new X509Store(StoreName.My, StoreLocation.CurrentUser);
@@ -45,8 +46,13 @@ namespace HiEIS.Certificate
         public static ByteArrayContent SignWithThisCert(X509Certificate2 cert, string fileInputPath, string type)
         {
             string SourcePdfFileName = fileInputPath;
-            var fileName = Path.GetFileName(SourcePdfFileName);
-            string DestPdfFileName = String.Format(fileNew, fileName);
+            var fileName = Path.GetFileName(SourcePdfFileName) +DateTime.Now.ToString("HHmmss")+".pdf";
+            string dateNow = DateTime.Now.ToString("dd-MM-yyyy");
+            if (!Directory.Exists(string.Format(folderNew, dateNow)))
+            {
+                Directory.CreateDirectory(string.Format(folderNew, dateNow));
+            }
+            string DestPdfFileName = String.Format(fileNew, dateNow, fileName);
             Org.BouncyCastle.X509.X509CertificateParser cp = new Org.BouncyCastle.X509.X509CertificateParser();
             Org.BouncyCastle.X509.X509Certificate[] chain = new Org.BouncyCastle.X509.X509Certificate[] { cp.ReadCertificate(cert.RawData) };
             IExternalSignature externalSignature = new X509Certificate2Signature(cert, "SHA-1");
@@ -73,11 +79,11 @@ namespace HiEIS.Certificate
             signatureAppearance.Layer2Font = new iTextSharp.text.Font(unicode);
             MakeSignature.SignDetached(signatureAppearance, externalSignature, chain, null, null, null, 0, CryptoStandard.CMS);
 
-            return new ByteArrayContent(ReadFully(fileName));
+            return new ByteArrayContent(ReadFully(dateNow,fileName));
         }
-        public static byte[] ReadFully(String fileName)
+        public static byte[] ReadFully(String dateNow,String fileName)
         {
-            using (FileStream fileStream = File.Open(String.Format(fileNew, fileName), FileMode.Open, FileAccess.Read))
+            using (FileStream fileStream = File.Open(String.Format(fileNew, dateNow, fileName), FileMode.Open, FileAccess.Read))
             {
                 byte[] buffer = new byte[16 * 1024];
                 using (MemoryStream ms = new MemoryStream())
