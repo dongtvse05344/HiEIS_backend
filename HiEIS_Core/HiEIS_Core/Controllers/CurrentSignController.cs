@@ -20,14 +20,16 @@ namespace HiEIS_Core.Controllers
         private readonly UserManager<MyUser> _userManager;
         private readonly ICurrentSignService _currentSignService;
         private readonly IInvoiceService _invoiceService;
+        private readonly ITemplateService _templateService;
 
-        public CurrentSignController(UserManager<MyUser> userManager, ICurrentSignService currentSignService, IInvoiceService invoiceService)
+        public CurrentSignController(UserManager<MyUser> userManager, ICurrentSignService currentSignService, IInvoiceService invoiceService, ITemplateService templateService)
         {
             _userManager = userManager;
             _currentSignService = currentSignService;
             _invoiceService = invoiceService;
+            _templateService = templateService;
         }
-        
+
         [Authorize]
         [HttpPost("GenerateCode")]
         public ActionResult GenerateCode()
@@ -131,10 +133,16 @@ namespace HiEIS_Core.Controllers
                 result.fileContents = new List<FileContent>();
                 foreach (var item in invoices)
                 {
+                    var template = _templateService.GetTemplate(item.TemplateId);
+
                     result.fileContents.Add(new FileContent
                     {
                         Id = item.Id,
-                        Path = "/api/invoice/"+item.Id+"/file"
+                        Path = "/api/invoice/"+item.Id+"/file",
+                        Llx = template.Llx,
+                        Lly = template.Lly,
+                        Urx = template.Urx,
+                        Ury = template.Ury
                     });
                 }
 

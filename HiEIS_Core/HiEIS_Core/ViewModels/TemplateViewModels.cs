@@ -34,6 +34,10 @@ namespace HiEIS_Core.ViewModels
         public int BeginNo { get; set; }
         public int CurrentNo { get; set; }
         public DateTime ReleaseDate { get; set; }
+        public int Llx { get; set; }
+        public int Lly { get; set; }
+        public int Urx { get; set; }
+        public int Ury { get; set; }
     }
 
     public class TemplateUM
@@ -46,5 +50,9 @@ namespace HiEIS_Core.ViewModels
         public int BeginNo { get; set; }
         public int CurrentNo { get; set; }
         public bool IsActive { get; set; }
+        public int Llx { get; set; }
+        public int Lly { get; set; }
+        public int Urx { get; set; }
+        public int Ury { get; set; }
     }
 }

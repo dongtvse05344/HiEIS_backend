@@ -15,5 +15,9 @@ namespace HiEIS_Core.ViewModels
     {
         public Guid Id { get; set; }
         public string Path { get; set; }
+        public int Llx { get; set; }
+        public int Lly { get; set; }
+        public int Urx { get; set; }
+        public int Ury { get; set; }
     }
 }
