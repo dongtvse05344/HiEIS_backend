@@ -67,7 +67,7 @@ namespace HiEIS.Certificate
             switch (type)
             {
                 case "Invoice":
-                    signatureAppearance.SetVisibleSignature(new iTextSharp.text.Rectangle(450, 150, 600, 250), pdfReader.NumberOfPages, null);
+                    signatureAppearance.SetVisibleSignature(new iTextSharp.text.Rectangle(450, 60, 600, 120), pdfReader.NumberOfPages, null);
                     break;
                 case "Sheet":
                     signatureAppearance.SetVisibleSignature(new iTextSharp.text.Rectangle(0, 0, 0, 0), pdfReader.NumberOfPages, null);

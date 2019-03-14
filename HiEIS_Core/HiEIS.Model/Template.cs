@@ -17,6 +17,10 @@ namespace HiEIS.Model
         public DateTime ReleaseDate { get; set; }
         public bool IsActive { get; set; }
         public string ReleaseAnnouncementUrl { get; set; }
+        public int Llx { get; set; }
+        public int Lly { get; set; }
+        public int Urx { get; set; }
+        public int Ury { get; set; }
 
         public string Form { get; set; }
 

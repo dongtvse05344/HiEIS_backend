@@ -16,8 +16,8 @@ namespace HiEIS.Certificate
 {
     public partial class Main : Form
     {
-        //private static string _uri = "http://dongtv.hisoft.vn/";
-        private static string _uri = "https://localhost:44326/";
+        private static string _uri = "http://dongtv.hisoft.vn/";
+        //private static string _uri = "https://localhost:44326/";
 
         private DataModel data = null;
         public Main()
@@ -56,7 +56,7 @@ namespace HiEIS.Certificate
             using (var content = new MultipartFormDataContent("upload----"+DateTime.Now.ToString()))
             {
                 client.BaseAddress = new Uri(_uri);
-                content.Add(new StringContent(data.CompanyId.ToString()), "companyId");
+                content.Add(new StringContent(txtCode.Text.Trim()), "code");
                 for (var i = 0; i < data.fileContents.Count(); i++)
                 {
                     var path = data.fileContents[i].Path;

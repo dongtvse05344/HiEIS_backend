@@ -62,7 +62,7 @@ namespace HiEIS_Core.Controllers
                 , TimeSpan.FromHours(1));
                 _currentSignService.SaveChanges();
 
-                return StatusCode(201, code);
+                return StatusCode(201, new { value=code });
             }
             catch (Exception e)
             {
@@ -97,7 +97,7 @@ namespace HiEIS_Core.Controllers
                 _currentSignService.UpdateCurrentSign(currentSign);
                 _currentSignService.SaveChanges();
 
-                return StatusCode(201, code);
+                return StatusCode(201, new { value = code});
             }
             catch (Exception e)
             {

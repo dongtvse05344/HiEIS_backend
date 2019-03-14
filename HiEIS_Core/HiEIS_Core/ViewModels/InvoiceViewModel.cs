@@ -21,7 +21,7 @@ namespace HiEIS_Core.ViewModels
 
     public class InvoiceSigned
     {
-        public Guid CompanyId { get; set; }
+        public string Code { get; set; }
         public List<IFormFile> FileContents { get; set; }
     }
 

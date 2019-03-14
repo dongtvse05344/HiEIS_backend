@@ -26,10 +26,11 @@ namespace HiEIS_Core.Controllers
         private readonly ITemplateService _templateService;
         private readonly IPdfService _pdfService;
         private readonly IInvoiceItemService _invoiceItemService;
+        private readonly ICurrentSignService _signService;
         private const string formatNumber = "0000000";
         private readonly ICompanyService _companyService;
 
-        public InvoiceController(IInvoiceService invoiceService, UserManager<MyUser> userManager, IFileService fileService, ITemplateService templateService, IPdfService pdfService, IInvoiceItemService invoiceItemService, ICompanyService companyService)
+        public InvoiceController(IInvoiceService invoiceService, UserManager<MyUser> userManager, IFileService fileService, ITemplateService templateService, IPdfService pdfService, IInvoiceItemService invoiceItemService, ICurrentSignService signService, ICompanyService companyService)
         {
             _invoiceService = invoiceService;
             _userManager = userManager;
@@ -37,6 +38,7 @@ namespace HiEIS_Core.Controllers
             _templateService = templateService;
             _pdfService = pdfService;
             _invoiceItemService = invoiceItemService;
+            _signService = signService;
             _companyService = companyService;
         }
 
@@ -311,8 +313,8 @@ namespace HiEIS_Core.Controllers
         [HttpPost("ReceiveInvoiceSigned")]
         public async Task<ActionResult> ReceiveSignedInvoice([FromForm]InvoiceSigned models)
         {
-            var company = _companyService.GetCompany(models.CompanyId);
-            if (company == null) return BadRequest("Unvaliable Company");
+            var currentCode = _signService.GetCurrentSigns(_ => _.Code.Equals(models.Code)).FirstOrDefault();
+            if (currentCode == null) return BadRequest();
            // string fileName = _fileService.GenerateFileName("Files/" + company.Id + "/Invoice/" + invoice.TaxNo + ".pdf");
             foreach (var item in models.FileContents)
             {
@@ -324,7 +326,7 @@ namespace HiEIS_Core.Controllers
                     if (invoice == null) continue;
                     string fileName = _fileService.GenerateFileName(invoice.LockupCode +".pdf");
                     var oldUrl = invoice.FileUrl;
-                    invoice.FileUrl = _fileService.SaveFile(company.Id.ToString(), nameof(FileType.Invoice), item,fileName).Result;
+                    invoice.FileUrl = _fileService.SaveFile(currentCode.CompanyId.ToString(), nameof(FileType.Invoice), item,fileName).Result;
                     invoice.Type = (int)InvoiceType.Signed;
                     newUrl = invoice.FileUrl;
                     _invoiceService.SaveChanges();
