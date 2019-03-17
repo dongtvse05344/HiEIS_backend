@@ -17,8 +17,8 @@ namespace HiEIS_Core.Utils
     {
         New = 0,
         Approve =1,
-        Signed = 3,
-        Reject = 4
+        Signed = 2,
+        Reject = 3
     }
     public enum UserRoles
     {
