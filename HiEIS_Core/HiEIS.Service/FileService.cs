@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,6 +15,7 @@ namespace HiEIS.Service
         string GenerateFileName(string fileName);
         Task<string> SaveFile(string companyId, string type, IFormFile file);
         Task<string> SaveFile(string companyId, string type, IFormFile file,string fileName);
+        void ZipFiles(string pathFolder, string pathDestination, string fileName);
 
         string SaveFile(string companyId, string type, List<PdfDocument> pdfDocuments, int currentNo);
         Task<FileSupport> GetFile(string url);
@@ -85,6 +87,18 @@ namespace HiEIS.Service
             catch (Exception)
             {
                 return null;
+            }
+        }
+
+        public void ZipFiles(string pathSourceFolder, string pathDestinationFolder, string fileName)
+        {
+            try
+            {
+                ZipFile.CreateFromDirectory(pathSourceFolder, pathDestinationFolder + @"\" + fileName);
+            }
+            catch (Exception e)
+            {
+                throw e;
             }
         }
 
