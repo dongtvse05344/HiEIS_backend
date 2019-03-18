@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace HiEIS_Core.Controllers
@@ -34,6 +35,7 @@ namespace HiEIS_Core.Controllers
         [HttpPost("GenerateCode")]
         public ActionResult GenerateCode()
         {
+            
             try
             {
                 var user = _userManager.GetUserAsync(User).Result;
