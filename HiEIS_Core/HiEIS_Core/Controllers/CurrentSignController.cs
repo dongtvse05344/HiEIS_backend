@@ -28,14 +28,13 @@ namespace HiEIS_Core.Controllers
             _userManager = userManager;
             _currentSignService = currentSignService;
             _invoiceService = invoiceService;
-            _templateService = templateService;
+            _templateService = templateService; 
         }
 
         [Authorize]
         [HttpPost("GenerateCode")]
         public ActionResult GenerateCode()
         {
-            
             try
             {
                 var user = _userManager.GetUserAsync(User).Result;
@@ -45,13 +44,16 @@ namespace HiEIS_Core.Controllers
                 
                 Random random = new Random();
                 string code;
+                StringBuilder _code = new StringBuilder(3);
                 do
                 {
                     code = "";
                     for (int i = 0; i < 4; i++)
                     {
-                        code += random.Next() % 10;
+                       
+                        _code.Append(random.Next() % 10);
                     }
+                    code = _code.ToString();
                 } while (_currentSignService.GetCurrentSigns(_ => _.Code.Equals(code)).FirstOrDefault() != null);
 
                 currentSign = new CurrentSign

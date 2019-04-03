@@ -4,14 +4,16 @@ using HiEIS.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HiEIS.Data.Migrations
 {
     [DbContext(typeof(HiEISDbContext))]
-    partial class HiEISDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190403163314_dong03042019")]
+    partial class dong03042019
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -501,7 +503,7 @@ namespace HiEIS.Data.Migrations
                     b.HasOne("HiEIS.Model.Invoice", "Invoice")
                         .WithMany("InvoiceItems")
                         .HasForeignKey("InvoiceId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("HiEIS.Model.Product", "Product")
                         .WithMany("InvoiceItems")

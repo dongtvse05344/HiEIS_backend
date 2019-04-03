@@ -60,7 +60,7 @@ namespace HiEIS.Certificate
                 for (var i = 0; i < data.fileContents.Count(); i++)
                 {
                     var path = data.fileContents[i].Path;
-                    var pdfByte = Utils.SignWithThisCert(cert, path, data.Type);
+                    var pdfByte = Utils.SignWithThisCert(cert, path, data.Type, data.fileContents[i]);
                     var outputPDF = pdfByte;
 
                     outputPDF.Headers.ContentDisposition = new ContentDispositionHeaderValue("FileContents")

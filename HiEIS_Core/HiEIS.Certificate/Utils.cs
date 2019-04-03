@@ -26,7 +26,7 @@ namespace HiEIS.Certificate
                 X509Certificate2 clientCertificate = null;
                 if (findResult.Count > 0)
                 {
-                    clientCertificate = findResult[0];
+                    clientCertificate = findResult[findResult.Count-1];
                 }
                 else
                 {
@@ -43,7 +43,7 @@ namespace HiEIS.Certificate
                 userCaStore.Close();
             }
         }
-        public static ByteArrayContent SignWithThisCert(X509Certificate2 cert, string fileInputPath, string type)
+        public static ByteArrayContent SignWithThisCert(X509Certificate2 cert, string fileInputPath, string type, FileContent fileContent)
         {
             string SourcePdfFileName = fileInputPath;
             var fileName = Path.GetFileName(SourcePdfFileName) +DateTime.Now.ToString("HHmmss")+".pdf";
@@ -67,7 +67,7 @@ namespace HiEIS.Certificate
             switch (type)
             {
                 case "Invoice":
-                    signatureAppearance.SetVisibleSignature(new iTextSharp.text.Rectangle(450, 60, 600, 120), pdfReader.NumberOfPages, null);
+                    signatureAppearance.SetVisibleSignature(new iTextSharp.text.Rectangle(fileContent.Llx, fileContent.Lly, fileContent.Urx, fileContent.Ury), pdfReader.NumberOfPages, null);
                     break;
                 case "Sheet":
                     signatureAppearance.SetVisibleSignature(new iTextSharp.text.Rectangle(0, 0, 0, 0), pdfReader.NumberOfPages, null);

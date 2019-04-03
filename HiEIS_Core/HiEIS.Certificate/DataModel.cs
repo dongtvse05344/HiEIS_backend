@@ -12,7 +12,7 @@ namespace HiEIS.Certificate
         public List<FileContent> fileContents { get; set; }
         public string Type { get; set; }
     }
-    class FileContent
+    public class FileContent
     {
         public string Id { get; set; }
         public string Path { get; set; }

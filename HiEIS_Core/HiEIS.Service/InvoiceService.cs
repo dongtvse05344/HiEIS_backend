@@ -333,22 +333,47 @@ namespace HiEIS.Service
 
                     AcroFields fields = pdfStamper.AcroFields;
                     fields.SetFieldProperty("Address", "textsize", (float)8, null);
+                    fields.SetFieldProperty("Address", "textfont", unicode, null);
                     fields.SetFieldProperty("Enterprise", "textsize", (float)8, null);
                     fields.SetFieldProperty("Enterprise", "textfont", unicode, null);
-                    fields.SetFieldProperty("Address", "textfont", unicode, null);
+
+                    fields.SetFieldProperty("Name", "textsize", (float)8, null);
                     fields.SetFieldProperty("Name", "textfont", unicode, null);
+
+                    fields.SetFieldProperty("PaymentMethod", "textsize", (float)8, null);
                     fields.SetFieldProperty("PaymentMethod", "textfont", unicode, null);
+
+                    fields.SetFieldProperty("Day", "textsize", (float)8, null);
                     fields.SetFieldProperty("Day", "textfont", unicode, null);
+
+                    fields.SetFieldProperty("Month", "textsize", (float)8, null);
                     fields.SetFieldProperty("Month", "textfont", unicode, null);
+
                     fields.SetFieldProperty("Year", "textfont", unicode, null);
+                    fields.SetFieldProperty("Year", "textsize", (float)8, null);
+
+                    fields.SetFieldProperty("Bank", "textsize", (float)8, null);
                     fields.SetFieldProperty("Bank", "textfont", unicode, null);
+
+                    fields.SetFieldProperty("TaxNo", "textsize", (float)8, null);
                     fields.SetFieldProperty("TaxNo", "textfont", unicode, null);
+
+                    fields.SetFieldProperty("BankAccountNumber", "textsize", (float)8, null);
                     fields.SetFieldProperty("BankAccountNumber", "textfont", unicode, null);
+
+                    fields.SetFieldProperty("Tel", "textsize", (float)8, null);
                     fields.SetFieldProperty("Tel", "textfont", unicode, null);
+
+                    fields.SetFieldProperty("Fax", "textsize", (float)8, null);
                     fields.SetFieldProperty("Fax", "textfont", unicode, null);
 
+                    fields.SetFieldProperty("Form", "textsize", (float)8, null);
                     fields.SetField("Form", invoice.Form);
+
+                    fields.SetFieldProperty("Serial", "textsize", (float)8, null);
                     fields.SetField("Serial", invoice.Serial);
+
+                    fields.SetFieldProperty("Number", "textsize", (float)8, null);
                     fields.SetField("Number", invoice.Number == null ? "" : invoice.Number.ToString());
 
                     fields.SetField("Day", invoice.Date.Day.ToString());
@@ -367,21 +392,41 @@ namespace HiEIS.Service
                     for (int i = 0; i < invoice.InvoiceItems.Count; i++)
                     {
                         var item = invoice.InvoiceItems.ElementAt(i);
-                        fields.SetFieldProperty("ProductName" + i, "textsize", (float)10, null);
+                        fields.SetFieldProperty("Unit" + i, "textsize", (float)8, null);
+                        fields.SetFieldProperty("ProductName" + i, "textsize", (float)8, null);
                         fields.SetField("ProductName" + i, item.Name);
 
+                        fields.SetFieldProperty("Unit" + i, "textsize", (float)8, null);
                         fields.SetField("Unit" + i, item.Unit);
+
+                        fields.SetFieldProperty("Quantity" + i, "textsize", (float)8, null);
                         fields.SetField("Quantity" + i, item.Quantity.ToString());
+
+                        fields.SetFieldProperty("UnitPrice" + i, "textsize", (float)8, null);
                         fields.SetField("UnitPrice" + i, item.UnitPrice.ToString("#,##0"));
+
+                        fields.SetFieldProperty("ProductTotal" + i, "textsize", (float)8, null);
                         fields.SetField("ProductTotal" + i, item.Total.ToString("#,##0"));
+
                     }
                     if (IsLastPage)
                     {
+                        fields.SetFieldProperty("TaxNo", "textsize", (float)8, null);
                         fields.SetField("TaxNo", invoice.TaxNo);
+
+                        fields.SetFieldProperty("VATRate", "textsize", (float)8, null);
                         fields.SetField("VATRate", invoice.VATRate == -1 ? "x" : (invoice.VATRate).ToString());
+
+                        fields.SetFieldProperty("SubTotal", "textsize", (float)8, null);
                         fields.SetField("SubTotal", invoice.SubTotal.ToString("#,##0"));
+
+                        fields.SetFieldProperty("VATAmount", "textsize", (float)8, null);
                         fields.SetField("VATAmount", invoice.VATRate == -1 ? "x":invoice.VATAmount.ToString("#,##0"));
+
+                        fields.SetFieldProperty("Total", "textsize", (float)8, null);
                         fields.SetField("Total", invoice.Total.ToString("#,##0"));
+
+                        fields.SetFieldProperty("AmountWords", "textsize", (float)8, null);
                         fields.SetField("AmountWords", invoice.AmountInWords);
                     }
 
@@ -390,7 +435,7 @@ namespace HiEIS.Service
                     pdfStamper.Close();
                     pdfReader.Close();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     throw;
                 }

@@ -151,7 +151,7 @@ namespace HiEIS_Core.Controllers
         }
 
         [HttpPut("ToggleActive/{id}")]
-        public async Task<ActionResult> ToggleActive(string id)
+        public ActionResult ToggleActive(string id)
         {
             try
             {

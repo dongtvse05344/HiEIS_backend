@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace HiEIS.Service
 {
-    public class FileUtils
+    public static class FileUtils
     {
         public static string GetContentType(string path)
         {
@@ -100,9 +100,8 @@ namespace HiEIS.Service
         string GenerateFileName(string fileName);
         Task<string> SaveFile(string companyId, string type, IFormFile file);
         Task<string> SaveFile(string companyId, string type, IFormFile file,string fileName);
-        void ZipFiles(string pathFolder, string pathDestination, string fileName);
-
         string SaveFile(string companyId, string type, List<PdfDocument> pdfDocuments, int currentNo);
+        void ZipFiles(string pathFolder, string pathDestination, string fileName);
         Task<FileSupport> GetFile(string url);
         void DeleteFile(string url);
     }
@@ -111,7 +110,6 @@ namespace HiEIS.Service
         public void CreateFolder(string companyId)
         {
             // Template
-            var root = Path.Combine(Directory.GetCurrentDirectory(), "Files", companyId);
             var pathTemplate = Path.Combine(Directory.GetCurrentDirectory(), "Files", companyId, "Template");
             System.IO.Directory.CreateDirectory(pathTemplate);
             // Invoice
@@ -177,14 +175,7 @@ namespace HiEIS.Service
 
         public void ZipFiles(string pathSourceFolder, string pathDestinationFolder, string fileName)
         {
-            try
-            {
-                ZipFile.CreateFromDirectory(pathSourceFolder, pathDestinationFolder + @"\" + fileName);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            ZipFile.CreateFromDirectory(pathSourceFolder, pathDestinationFolder + @"\" + fileName);
         }
 
         public string SaveFile(string companyId, string type, List<PdfDocument> pdfDocuments, int currentNo)
@@ -202,7 +193,7 @@ namespace HiEIS.Service
             }
             catch (Exception e)
             {
-                throw e;
+                return null;
             }
         }
 

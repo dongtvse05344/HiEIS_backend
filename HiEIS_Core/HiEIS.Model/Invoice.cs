@@ -7,6 +7,9 @@ namespace HiEIS.Model
 {
     public class Invoice : BaseEntity
     {
+        public Invoice(){
+            DateCreated = DateTime.Now;
+        }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int No { get; set; }
         public string LockupCode { get; set; }
@@ -39,7 +42,7 @@ namespace HiEIS.Model
         public float VATAmount { get; set; }
         public float Total { get; set; }
         public string AmountInWords { get; set; }
-        
+        public DateTime DateCreated { get; set; }
         public string Note { get; set; }
         public Guid TemplateId { get; set; }
         public string StaffId { get; set; }

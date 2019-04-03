@@ -44,21 +44,23 @@ namespace HiEIS_Core.Controllers
 
         [Authorize]
         [HttpGet]
-        public ActionResult GetInvoices(string TaxNo = "", int Month = -1, int Year = -1, int index = 1, int pageSize = 5)
+        public ActionResult GetInvoices(string Enterprise ="",string TaxNo = "", int Month = -1, int Year = -1, int index = 1, int pageSize = 5)
         {
             try
             {
                 var user = _userManager.GetUserAsync(User).Result;
                 TaxNo = TaxNo != null ? TaxNo : "";
+                Enterprise = Enterprise != null ? Enterprise : "";
                 Month = (Month > 0 && Month <= 12) ? Month : DateTime.Now.Month;
                 Year = Year > 2016 ? Year : DateTime.Now.Year;
 
                 var invoices = _invoiceService.GetInvoices(_ =>
                             _.Staff.CompanyId.Equals(user.Staff.CompanyId) &&
                             _.TaxNo.Contains(TaxNo) &&
+                            _.Enterprise.Contains(Enterprise) &&
                             _.Date.Month.Equals(Month) &&
                             _.Date.Year.Equals(Year)
-                            );
+                            ).OrderByDescending(_=>_.DueDate);
                 var result = invoices.ToPageList<InvoiceVM, Invoice>(index, pageSize);
                 return Ok(result);
             }

@@ -131,10 +131,10 @@ namespace HiEIS.Data
             //builder.Entity<InvoiceItem>().Property(_ => _.VATRate).HasColumnType("decimal");
             builder.Entity<InvoiceItem>()
                 .HasOne(_ => _.Invoice).WithMany(_ => _.InvoiceItems)
-                .HasForeignKey(_ => _.InvoiceId).OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(_ => _.InvoiceId).OnDelete(DeleteBehavior.Cascade);
             builder.Entity<InvoiceItem>()
                 .HasOne(_ => _.Product).WithMany(_ => _.InvoiceItems)
-                .HasForeignKey(_ => _.ProductId).OnDelete(DeleteBehavior.Restrict); ;
+                .HasForeignKey(_ => _.ProductId).OnDelete(DeleteBehavior.Restrict); 
             #endregion
 
             #region MyUser
