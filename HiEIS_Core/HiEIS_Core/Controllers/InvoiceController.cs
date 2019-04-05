@@ -60,7 +60,7 @@ namespace HiEIS_Core.Controllers
                             _.Enterprise.Contains(Enterprise) &&
                             _.Date.Month.Equals(Month) &&
                             _.Date.Year.Equals(Year)
-                            ).OrderByDescending(_=>_.DueDate);
+                            ).OrderByDescending(_=>_.Date);
                 var result = invoices.ToPageList<InvoiceVM, Invoice>(index, pageSize);
                 return Ok(result);
             }
@@ -344,6 +344,32 @@ namespace HiEIS_Core.Controllers
                 }
             }
             return Ok();
+        }
+
+        [Authorize]
+        [HttpGet("SearchInvoices")]
+        public ActionResult SearchInvoices(string companyName = "", DateTime? fromDate = null, DateTime? toDate = null, int index = 1, int pageSize = 5)
+        {
+            try
+            {
+                var user = _userManager.GetUserAsync(User).Result;
+
+                var invoices = _invoiceService.GetInvoices(_ => _.Enterprise.Contains(companyName)
+                                                && _.Staff.CompanyId.Equals(user.Staff.CompanyId));
+                if (fromDate != null)
+                    invoices = invoices.Where(_ => _.Date.Date >= fromDate.Value.Date);
+                if (toDate != null)
+                    invoices = invoices.Where(_ => _.Date.Date <= toDate.Value.Date);
+                invoices = invoices.OrderByDescending(_ => _.Date);
+
+                var result = invoices.ToPageList<InvoiceVM, Invoice>(index, pageSize);
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }

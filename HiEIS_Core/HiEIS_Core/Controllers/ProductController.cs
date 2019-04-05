@@ -116,7 +116,7 @@ namespace HiEIS_Core.Controllers
                 product.CompanyId = user.Staff.CompanyId;
                 _productService.CreateProduct(product);
                 _productService.SaveChanges();
-                return StatusCode(201);
+                return StatusCode(201, product.Id);
             }
             catch (Exception e)
             {

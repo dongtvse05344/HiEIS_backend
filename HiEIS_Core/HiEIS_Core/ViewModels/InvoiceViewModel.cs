@@ -13,7 +13,7 @@ namespace HiEIS_Core.ViewModels
         public string Number { get; set; }
         //Loại HĐ (GTGT / Bán hàng)
         public int Type { get; set; }
-        public DateTime DueDate { get; set; }
+        public DateTime DateCreated { get; set; }
         public int PaymentStatus { get; set; }
         public float Total { get; set; }
         public string Note { get; set; }
