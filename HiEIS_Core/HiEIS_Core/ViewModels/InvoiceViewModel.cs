@@ -17,6 +17,7 @@ namespace HiEIS_Core.ViewModels
         public int PaymentStatus { get; set; }
         public float Total { get; set; }
         public string Note { get; set; }
+        public DateTime DateCreated { get; set; }
     }
 
     public class InvoiceSigned
