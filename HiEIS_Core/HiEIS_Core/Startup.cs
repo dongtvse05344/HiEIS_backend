@@ -92,10 +92,10 @@ namespace HiEIS_Core
 
             //PDF
             services.AddTransient<IPdfService, PdfService>();
+            //Email
+            services.AddTransient<IEmailService, EmailService>();
 
             #endregion
-
-
 
             #region Identity
             services.AddAuthorization();

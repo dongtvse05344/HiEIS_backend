@@ -29,8 +29,9 @@ namespace HiEIS_Core.Controllers
         private readonly ICurrentSignService _signService;
         private const string formatNumber = "0000000";
         private readonly ICompanyService _companyService;
+        private readonly IEmailService _mailService;
 
-        public InvoiceController(IInvoiceService invoiceService, UserManager<MyUser> userManager, IFileService fileService, ITemplateService templateService, IPdfService pdfService, IInvoiceItemService invoiceItemService, ICurrentSignService signService, ICompanyService companyService)
+        public InvoiceController(IInvoiceService invoiceService, UserManager<MyUser> userManager, IFileService fileService, ITemplateService templateService, IPdfService pdfService, IInvoiceItemService invoiceItemService, ICurrentSignService signService, ICompanyService companyService, IEmailService mailService)
         {
             _invoiceService = invoiceService;
             _userManager = userManager;
@@ -40,6 +41,7 @@ namespace HiEIS_Core.Controllers
             _invoiceItemService = invoiceItemService;
             _signService = signService;
             _companyService = companyService;
+            _mailService = mailService;
         }
 
         [Authorize]
@@ -58,9 +60,9 @@ namespace HiEIS_Core.Controllers
                             _.Staff.CompanyId.Equals(user.Staff.CompanyId) &&
                             _.TaxNo.Contains(TaxNo) &&
                             _.Enterprise.Contains(Enterprise) &&
-                            _.Date.Month.Equals(Month) &&
-                            _.Date.Year.Equals(Year)
-                            ).OrderByDescending(_=>_.Date);
+                            _.DateCreated.Month.Equals(Month) &&
+                            _.DateCreated.Year.Equals(Year)
+                            ).OrderByDescending(_=>_.DateCreated);
                 var result = invoices.ToPageList<InvoiceVM, Invoice>(index, pageSize);
                 return Ok(result);
             }
@@ -231,6 +233,12 @@ namespace HiEIS_Core.Controllers
 
                 _invoiceService.SaveChanges();
                 _fileService.DeleteFile(oldFile);
+
+                //Send mail
+                Hangfire.BackgroundJob.Enqueue(() => SendMail(new Invoice()
+                {
+                    FileUrl = invoice.FileUrl  // Link file to send
+                }));
                 return StatusCode(200);
             }
             catch (Exception e)
@@ -241,6 +249,22 @@ namespace HiEIS_Core.Controllers
                 }
                 return BadRequest(e.Message);
             }
+        }
+
+        public void SendMail(Invoice invoice)
+        {
+            var fileAttachments = new List<FileAttachmentModel>();
+            fileAttachments.Add(new FileAttachmentModel
+            {
+                FileName = "Hóa đơn tháng " + DateTime.Now.Month.ToString() + ".pdf",
+                FileContentStream = _fileService.GetFile(invoice.FileUrl).Result.Stream
+            });
+            var mailModel = new EmailModel()
+            {
+                FileAttachments = fileAttachments,
+                ToMail = "xhunter1412@gmail.com"
+            };
+            _mailService.SendEmail(mailModel);
         }
 
         [HttpGet("AmountInWord/{gNum}")]

@@ -10,42 +10,58 @@ namespace HiEIS.Service
 {
     public class FileAttachmentModel
     {
-        public Stream FileStream { get; set; }
+        public Stream FileContentStream { get; set; }
         public string FileName { get; set; }
+    }
+    public class EmailModel
+    {
+        public EmailModel()
+        {
+            FromMail = "testmailbusiness1412@gmail.com";
+            Password = "!QAZxsw2";
+        }
+        public string FromMail { get; set; }
+        public string MailName { get; set; }
+        public string Password { get; set; }
+        public string ToMail { get; set; }
+        public string Subject { get; set; }
+        public string  Message { get; set; }
+        public List<string> Cc { get; set; }
+        public List<FileAttachmentModel> FileAttachments { get; set; }
     }
     public interface IEmailService
     {
-        Task SendEmail(string email, string subject, string message, List<string> cc, List<FileAttachmentModel> fileAttachments);
+        Task SendEmail(EmailModel model);
     }
     public class EmailService : IEmailService
     {
-        public async Task SendEmail(string email, string subject, string message, List<string> cc, List<FileAttachmentModel> fileAttachments)
+        public async Task SendEmail(EmailModel model)
         {
             MailMessage objeto_mail = new MailMessage();
             SmtpClient client = new SmtpClient();
             client.Host = "smtp.gmail.com";
             client.Port = 587;
-            client.Credentials = new System.Net.NetworkCredential("testmailbusiness1412@gmail.com", "!QAZxsw2");
+            client.Credentials = new System.Net.NetworkCredential(model.FromMail, model.Password);
             client.EnableSsl = true;
-            objeto_mail.Subject = subject;
-            objeto_mail.From = new MailAddress("testmailbusiness1412@gmail.com", "HiSoft JSC");
-            objeto_mail.To.Add(new MailAddress(email));
-            objeto_mail.Body = message;
+            objeto_mail.Subject = model.Subject;
+            objeto_mail.From = new MailAddress(model.FromMail, model.MailName);
+            objeto_mail.To.Add(new MailAddress(model.ToMail));
+            objeto_mail.Body = model.Message;
             objeto_mail.IsBodyHtml = true;
-            if (cc != null)
+            if (model.Cc != null)
             {
-                foreach (var item in cc)
+                foreach (var item in model.Cc)
                 {
                     objeto_mail.CC.Add(new MailAddress(item));
                 }
             }
-            if (fileAttachments != null)
+            if (model.FileAttachments != null)
             {
-                foreach (var item in fileAttachments)
+                foreach (var item in model.FileAttachments)
                 {
-                    item.FileStream.Position = 0;
+                    item.FileContentStream.Position = 0;
                     ContentType ct = new System.Net.Mime.ContentType(FileUtils.GetContentType(item.FileName));
-                    System.Net.Mail.Attachment attach = new System.Net.Mail.Attachment(item.FileStream, ct);
+                    System.Net.Mail.Attachment attach = new System.Net.Mail.Attachment(item.FileContentStream, ct);
                     attach.ContentDisposition.FileName = item.FileName;
                     objeto_mail.Attachments.Add(attach);
                 }
