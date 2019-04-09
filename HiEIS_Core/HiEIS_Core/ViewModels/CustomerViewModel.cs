@@ -20,6 +20,21 @@ namespace HiEIS_Core.ViewModels
 
     public class CustomerCM
     {
-
+        public string Enterprise { get; set; }
+        public string TaxNo { get; set; }
+        public string Address { get; set; }
+        public string Tel { get; set; }
+        public string Fax { get; set; }
+        public string Bank { get; set; }
+        public string BankAccountNumber { get; set; }
+    }
+    public class CustomerUM
+    {
+        public Guid id { get; set; }
+        public string Address { get; set; }
+        public string Tel { get; set; }
+        public string Fax { get; set; }
+        public string Bank { get; set; }
+        public string BankAccountNumber { get; set; }
     }
 }

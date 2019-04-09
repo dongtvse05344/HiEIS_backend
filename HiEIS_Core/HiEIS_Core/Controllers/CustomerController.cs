@@ -2,6 +2,7 @@
 using HiEIS.Service;
 using HiEIS_Core.Paging;
 using HiEIS_Core.ViewModels;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -30,6 +31,59 @@ namespace HiEIS_Core.Controllers
             var result = customers.ToPageList<CustomerVM, Customer>(index, pageSize);
 
             return Ok(result);
+        }
+
+        [HttpPost]
+        public ActionResult CreateCustomer([FromBody]CustomerCM model)
+        {
+            try
+            {
+                var customer = model.Adapt<Customer>();
+                _customerService.CreateCustomer(customer);
+                _customerService.SaveChanges();
+                return StatusCode(201, customer.Id);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpDelete]
+        public ActionResult DeleteCustomer(Guid id)
+        {
+            try
+            {
+                var customer = _customerService.GetCustomer(id);
+                if (customer == null) return NotFound();
+
+                _customerService.DeleteCustomer(customer);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPut]
+        public ActionResult UpdateCustomer([FromBody]CustomerUM model)
+        {
+            try
+            {
+                var customer = _customerService.GetCustomer(model.id);
+                if (customer == null) return NotFound();
+
+                customer = model.Adapt(customer);
+                _customerService.UpdateCustomer(customer);
+                _customerService.SaveChanges();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }
