@@ -167,12 +167,31 @@ namespace HiEIS_Core.Controllers
         }
              
         [HttpPost("ChangePassword")]
-        public ActionResult ChangePassword([FromBody]StaffChangePasswordVM model)
+        public ActionResult ChangePassword([FromBody]StaffPasswordVM model)
         {
             try
             {
                 var user = _userManager.GetUserAsync(User).Result;
                 var result = _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword).Result;
+
+                if (result.Succeeded) return Ok();
+                return BadRequest(result.Errors);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("ResetPassword")]
+        public ActionResult ResetPassword([FromBody]StaffPasswordVM model)
+        {
+            try
+            {
+                var user = _userManager.FindByNameAsync(model.UserName).Result;
+                if (user == null) return NotFound();
+                var token = _userManager.GeneratePasswordResetTokenAsync(user).Result;
+                var result = _userManager.ResetPasswordAsync(user, token, model.NewPassword).Result;
 
                 if (result.Succeeded) return Ok();
                 return BadRequest(result.Errors);
