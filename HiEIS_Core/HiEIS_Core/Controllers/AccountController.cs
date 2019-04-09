@@ -166,7 +166,22 @@ namespace HiEIS_Core.Controllers
             }
         }
              
+        [HttpPost("ChangePassword")]
+        public ActionResult ChangePassword([FromBody]StaffChangePasswordVM model)
+        {
+            try
+            {
+                var user = _userManager.GetUserAsync(User).Result;
+                var result = _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword).Result;
 
+                if (result.Succeeded) return Ok();
+                return BadRequest(result.Errors);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 
 }
