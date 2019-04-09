@@ -59,4 +59,9 @@ namespace HiEIS_Core.ViewModels
         public string Code { get; set; }
         public ICollection<string> Roles { get; set; }
     }
+    public class StaffChangePasswordVM
+    {
+        public string CurrentPassword { get; set; }
+        public string NewPassword { get; set; }
+    }
 }
