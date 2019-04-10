@@ -30,8 +30,9 @@ namespace HiEIS_Core.Controllers
         private const string formatNumber = "0000000";
         private readonly ICompanyService _companyService;
         private readonly IEmailService _mailService;
+        private readonly ICustomerService _customerService;
 
-        public InvoiceController(IInvoiceService invoiceService, UserManager<MyUser> userManager, IFileService fileService, ITemplateService templateService, IPdfService pdfService, IInvoiceItemService invoiceItemService, ICurrentSignService signService, ICompanyService companyService, IEmailService mailService)
+        public InvoiceController(IInvoiceService invoiceService, UserManager<MyUser> userManager, IFileService fileService, ITemplateService templateService, IPdfService pdfService, IInvoiceItemService invoiceItemService, ICurrentSignService signService, ICompanyService companyService, IEmailService mailService, ICustomerService customerService)
         {
             _invoiceService = invoiceService;
             _userManager = userManager;
@@ -42,28 +43,28 @@ namespace HiEIS_Core.Controllers
             _signService = signService;
             _companyService = companyService;
             _mailService = mailService;
+            _customerService = customerService;
         }
 
         [Authorize]
         [HttpGet]
-        public ActionResult GetInvoices(string Enterprise ="",string TaxNo = "", int Month = -1, int Year = -1, int index = 1, int pageSize = 5)
+        public ActionResult SearchInvoices(string companyName = "", DateTime? fromDate = null, DateTime? toDate = null, int index = 1, int pageSize = 5)
         {
             try
             {
                 var user = _userManager.GetUserAsync(User).Result;
-                TaxNo = TaxNo != null ? TaxNo : "";
-                Enterprise = Enterprise != null ? Enterprise : "";
-                Month = (Month > 0 && Month <= 12) ? Month : DateTime.Now.Month;
-                Year = Year > 2016 ? Year : DateTime.Now.Year;
 
-                var invoices = _invoiceService.GetInvoices(_ =>
-                            _.Staff.CompanyId.Equals(user.Staff.CompanyId) &&
-                            _.TaxNo.Contains(TaxNo) &&
-                            _.Enterprise.Contains(Enterprise) &&
-                            _.DateCreated.Month.Equals(Month) &&
-                            _.DateCreated.Year.Equals(Year)
-                            ).OrderByDescending(_=>_.DateCreated);
+                var invoices = _invoiceService.GetInvoices(
+                                                    _ => _.Enterprise.Contains(companyName)
+                                                &&  _.Staff.CompanyId.Equals(user.Staff.CompanyId));
+                if (fromDate != null)
+                    invoices = invoices.Where(_ => _.DateCreated.Date >= fromDate.Value.Date);
+                if (toDate != null)
+                    invoices = invoices.Where(_ => _.DateCreated.Date <= toDate.Value.Date);
+                invoices = invoices.OrderByDescending(_ => _.DateCreated);
+
                 var result = invoices.ToPageList<InvoiceVM, Invoice>(index, pageSize);
+
                 return Ok(result);
             }
             catch (Exception e)
@@ -71,6 +72,7 @@ namespace HiEIS_Core.Controllers
                 return BadRequest(e.Message);
             }
         }
+
 
         [HttpGet("{id}/file")]
         public ActionResult GetInvoiceFile(Guid id)
@@ -147,6 +149,8 @@ namespace HiEIS_Core.Controllers
                 _invoiceService.SaveChanges();
                 invoice.LockupCode = invoice.No.ToString("000000");
                 _invoiceService.SaveChanges();
+                CustomerCM customer = invoice.Adapt<CustomerCM>();
+                Hangfire.BackgroundJob.Enqueue(() => AddOrUpdateCustomer(customer));
                 return StatusCode(201, invoice.Id);
             }
             catch (Exception e)
@@ -158,6 +162,22 @@ namespace HiEIS_Core.Controllers
 
                 return BadRequest(e.Message);
             }
+        }
+
+        [HttpPatch]
+        public void AddOrUpdateCustomer(CustomerCM customer)
+        {
+            var customerDb = _customerService.GetCustomers().FirstOrDefault(_ => _.TaxNo.Equals(customer.TaxNo));
+            if(customerDb ==null)
+            {
+                _customerService.CreateCustomer(customer.Adapt<Customer>());
+            }
+            else
+            {
+                customerDb = customer.Adapt(customerDb);
+                _customerService.UpdateCustomer(customerDb);
+            }
+            _customerService.SaveChanges();
         }
 
         [Authorize]
@@ -364,36 +384,11 @@ namespace HiEIS_Core.Controllers
                     {
                         _fileService.DeleteFile(newUrl);
                     }
-                    continue;
                 }
             }
             return Ok();
         }
 
-        [Authorize]
-        [HttpGet("SearchInvoices")]
-        public ActionResult SearchInvoices(string companyName = "", DateTime? fromDate = null, DateTime? toDate = null, int index = 1, int pageSize = 5)
-        {
-            try
-            {
-                var user = _userManager.GetUserAsync(User).Result;
-
-                var invoices = _invoiceService.GetInvoices(_ => _.Enterprise.Contains(companyName)
-                                                && _.Staff.CompanyId.Equals(user.Staff.CompanyId));
-                if (fromDate != null)
-                    invoices = invoices.Where(_ => _.Date.Date >= fromDate.Value.Date);
-                if (toDate != null)
-                    invoices = invoices.Where(_ => _.Date.Date <= toDate.Value.Date);
-                invoices = invoices.OrderByDescending(_ => _.Date);
-
-                var result = invoices.ToPageList<InvoiceVM, Invoice>(index, pageSize);
-
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
+        
     }
 }

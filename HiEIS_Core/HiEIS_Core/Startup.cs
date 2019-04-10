@@ -95,6 +95,10 @@ namespace HiEIS_Core
             //Email
             services.AddTransient<IEmailService, EmailService>();
 
+
+            //Customer
+            services.AddTransient<ICustomerRepository, CustomerRepository>();
+            services.AddTransient<ICustomerService, CustomerService>();
             #endregion
 
             #region Identity

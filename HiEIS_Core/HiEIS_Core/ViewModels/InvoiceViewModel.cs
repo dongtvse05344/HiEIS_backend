@@ -32,7 +32,6 @@ namespace HiEIS_Core.ViewModels
         public DateTime Date { get; set; }
         public DateTime DueDate { get; set; }
         public string FileUrl { get; set; }
-
         //Thông tin khách hàng
         public string Name { get; set; }
         public string Enterprise { get; set; }
