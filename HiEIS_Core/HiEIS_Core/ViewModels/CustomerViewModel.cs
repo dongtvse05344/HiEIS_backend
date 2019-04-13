@@ -16,6 +16,7 @@ namespace HiEIS_Core.ViewModels
         public string Fax { get; set; }
         public string Bank { get; set; }
         public string BankAccountNumber { get; set; }
+        public string Email { get; set; }
     }
 
     public class CustomerCM
@@ -27,6 +28,8 @@ namespace HiEIS_Core.ViewModels
         public string Fax { get; set; }
         public string Bank { get; set; }
         public string BankAccountNumber { get; set; }
+        public string Email { get; set; }
+
     }
     public class CustomerUM
     {
@@ -36,5 +39,7 @@ namespace HiEIS_Core.ViewModels
         public string Fax { get; set; }
         public string Bank { get; set; }
         public string BankAccountNumber { get; set; }
+        public string Email { get; set; }
+
     }
 }

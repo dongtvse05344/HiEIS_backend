@@ -63,10 +63,10 @@ namespace HiEIS.Data
             //    .HasForeignKey(_ => _.CustomerId);
             //#endregion
 
-            //#region Customer
+            #region Customer
             //builder.Entity<Customer>().Property(_ => _.Name).HasMaxLength(100).IsRequired().IsUnicode();
             //builder.Entity<Customer>().Property(_ => _.Enterprise).IsRequired().IsUnicode();
-            //builder.Entity<Customer>().Property(_ => _.TaxNo).HasMaxLength(18);
+            builder.Entity<Customer>().HasIndex(_ => _.TaxNo).IsUnique();
             //builder.Entity<Customer>().Property(_ => _.Address).IsRequired();
             //builder.Entity<Customer>().Property(_ => _.Tel).HasMaxLength(16).IsUnicode(false);
             //builder.Entity<Customer>().Property(_ => _.Fax).HasMaxLength(16).IsUnicode(false);
@@ -76,7 +76,7 @@ namespace HiEIS.Data
             //builder.Entity<Customer>().HasMany(_ => _.CustomerProducts).WithOne(_ => _.Customer);
             //builder.Entity<Customer>().HasMany(_ => _.Transactions).WithOne(_ => _.Customer);
             //builder.Entity<Customer>().HasMany(_ => _.Invoices).WithOne(_ => _.Customer);
-            //#endregion
+            #endregion
 
             //#region CustomerProduct
             //builder.Entity<CustomerProduct>().HasKey(_ => new { _.CustomerId, _.ProductId});

@@ -1,9 +1,13 @@
 ﻿using HiEIS.Model;
 using HiEIS.Service;
 using HiEIS_Core.Paging;
+using HiEIS_Core.Utils;
 using HiEIS_Core.ViewModels;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
+using NSoup;
+using NSoup.Nodes;
+using NSoup.Parse;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,6 +87,44 @@ namespace HiEIS_Core.Controllers
             catch (Exception e)
             {
                 return BadRequest(e.Message);
+            }
+        }
+
+        private CompanyVM GetDataFromOutSide(string taxNo)
+        {
+            string url = "http://www.thongtincongty.com/search/";
+            IConnection connection = NSoupClient.Connect(url += taxNo);
+            Document document = connection.Get();
+
+            string html = document.GetElementsByClass("jumbotron").OuterHtml();
+            document = Parser.Parse(html, document.BaseUri);
+            string[] arr = html.Split("<br />");
+
+            var companyVM = new CompanyVM();
+            companyVM.Enterprise = document.Select("span").Text;
+            foreach (var item in arr)
+            {
+                if (item.Contains("Địa chỉ"))
+                {
+                    var address = item.Substring(item.IndexOf("Địa") + 9);
+                    companyVM.Address = StringUtils.Replace(address.Substring(0, address.Length - 2));
+                    break;
+                }
+            }
+            return companyVM;
+        }
+
+        [HttpGet("GetEnterprise")]
+        public ActionResult GetEnterpriseInfoByTaxNo(string taxNo)
+        {
+            var company = _customerService.GetCustomers().FirstOrDefault(_ => _.TaxNo.Equals(taxNo));
+            if(company == null)
+            {
+                return Ok(this.GetDataFromOutSide(taxNo));
+            }
+            else
+            {
+                return Ok(company.Adapt<CompanyVM>());
             }
         }
     }
