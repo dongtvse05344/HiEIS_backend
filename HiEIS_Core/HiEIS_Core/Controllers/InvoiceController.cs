@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace HiEIS_Core.Controllers
@@ -389,6 +390,93 @@ namespace HiEIS_Core.Controllers
                 var result = invoices.ToPageList<InvoiceVM, Invoice>(index, pageSize);
 
                 return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        /*
+        [HttpPost("UploadFolder")]
+        public ActionResult UploadFolder([FromBody]string access_token)
+        {
+            try
+            {
+                string url = "https://www.googleapis.com/drive/v3/files";
+                
+                using (var httpClient = new HttpClient())
+                {
+                    httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + access_token);
+                    HttpContent content = new StringContent("{\"mimeType\": \"application/vnd.google-apps.folder\", \"name\": \"Invoices\"}", Encoding.UTF8, "application/json");
+                    var response = httpClient.PostAsync(url, content).Result;
+
+                    return Ok(response.Content.ReadAsStringAsync().Result);
+                }
+                
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        */
+
+        [HttpPost("UploadFile")]
+        public async Task<ActionResult> UploadFile([FromBody]InvoiceUploadFileVM model)
+        {
+            try
+            {
+                string url = "https://www.googleapis.com/upload/drive/v3/files?" 
+                        + "uploadType=multipart&"
+                        + "fields=id";
+                var invoice = _invoiceService.GetInvoice(model.InvoiceID);
+                if (invoice == null) return NotFound();
+                
+                using (var httpClient = new HttpClient())
+                {
+                    httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + model.Access_token);
+
+                    ByteArrayContent fileContent;
+                    using (var stream = new FileStream(Path.Combine(Directory.GetCurrentDirectory(), invoice.FileUrl), FileMode.Open))
+                    {
+                        using (var binaryReader = new BinaryReader(stream))
+                        {
+                            fileContent = new ByteArrayContent(binaryReader.ReadBytes((int)stream.Length));
+                            fileContent.Headers.Add("Content-Type", "application/pdf");
+                            fileContent.Headers.Add("Content-Length", stream.Length.ToString());
+                        }
+                    }
+
+                    var googleDriveFileVM = new GoogleDriveUploadFileVM
+                    {
+                        name = invoice.Enterprise + ".pdf",
+                        title = invoice.Enterprise,
+                        parents = new List<string> { model.GoogleDriveFolderId }
+                    };
+                    StringContent fileInfoContent = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(googleDriveFileVM), Encoding.UTF8, "application/json");
+
+                    MultipartContent content = new MultipartContent("related", "HiEIS")
+                    {
+                        fileInfoContent,
+                        fileContent
+                    };
+                    /*
+                    content.Headers.Remove("Content-Type");
+                    content.Headers.TryAddWithoutValidation("Content-Type", "multipart/related; boundary=HiEIS");
+                    */
+                    
+                    var response = await httpClient.PostAsync(url, content);
+                    var result = Newtonsoft.Json.JsonConvert.DeserializeObject<GoogleDriveUploadFileSuccessVM>(await response.Content.ReadAsStringAsync());
+                    if (result.Id == null) return BadRequest("Upload Failed!");
+
+                    invoice.GoogleDriveFileId = result.Id;
+                    _invoiceService.UpdateInvoice(invoice);
+                    _invoiceService.SaveChanges();
+
+                    return Ok();
+                }
+
             }
             catch (Exception e)
             {

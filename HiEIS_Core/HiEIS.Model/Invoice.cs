@@ -46,7 +46,9 @@ namespace HiEIS.Model
         public string Note { get; set; }
         public Guid TemplateId { get; set; }
         public string StaffId { get; set; }
-     //   public Guid CustomerId { get; set; }
+        //   public Guid CustomerId { get; set; }
+
+        public string GoogleDriveFileId { get; set; }
 
         [ForeignKey("StaffId")]
         public virtual Staff Staff { get; set; }
