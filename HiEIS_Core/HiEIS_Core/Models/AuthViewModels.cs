@@ -13,7 +13,7 @@ namespace HiEIS_Core.Models
         public int expires_in { get; set; }
     }
 
-    public class GoogleToken
+    public class GoogleTokenModel
     {
         public string Access_token { get; set; }
         public string Expires_in { get; set; }

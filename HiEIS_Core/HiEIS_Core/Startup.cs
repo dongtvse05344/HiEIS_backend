@@ -47,7 +47,7 @@ namespace HiEIS_Core
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-
+            
             #region DbContext
             // ===== Add our DbContext ========
             services.AddDbContext<HiEISDbContext>();
@@ -99,6 +99,10 @@ namespace HiEIS_Core
             //Customer
             services.AddTransient<ICustomerRepository, CustomerRepository>();
             services.AddTransient<ICustomerService, CustomerService>();
+            
+            //Googke Token
+            services.AddTransient<IGoogleTokenRepository, GoogleTokenRepository>();
+            services.AddTransient<IGoogleTokenService, GoogleTokenService>();
             #endregion
 
             #region Identity

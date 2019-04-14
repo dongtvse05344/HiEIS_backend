@@ -415,21 +415,27 @@ namespace HiEIS_Core.Controllers
         }
         */
 
+        [Authorize(Roles = "AccountingManager")]
         [HttpPost("UploadFile")]
         public async Task<ActionResult> UploadFile([FromBody]InvoiceUploadFileVM model)
         {
             try
             {
+                var user = await _userManager.GetUserAsync(User);
+                if (user.GoogleToken == null)
+                    return StatusCode(401, "Require Google Authorization!");
+
                 string url = "https://www.googleapis.com/upload/drive/v3/files?" 
                         + "uploadType=multipart&"
                         + "fields=id";
-                var invoice = _invoiceService.GetInvoice(model.InvoiceID);
+                var invoice = _invoiceService.GetInvoices(_ 
+                    => _.Id == model.InvoiceID && _.StaffId.Equals(user.Staff.Id)).FirstOrDefault();
                 if (invoice == null) return NotFound();
                 
                 using (var httpClient = new HttpClient())
                 {
-                    httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + model.Access_token);
-
+                    httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + user.GoogleToken.Access_token);
+                    
                     ByteArrayContent fileContent;
                     using (var stream = new FileStream(Path.Combine(Directory.GetCurrentDirectory(), invoice.FileUrl), FileMode.Open))
                     {
@@ -460,16 +466,63 @@ namespace HiEIS_Core.Controllers
                     */
                     
                     var response = await httpClient.PostAsync(url, content);
+                    try
+                    {
+                        response.EnsureSuccessStatusCode();
+                    }
+                    catch (Exception)
+                    {
+                        return BadRequest(await response.Content.ReadAsStringAsync());
+                    }
                     var result = Newtonsoft.Json.JsonConvert.DeserializeObject<GoogleDriveUploadFileSuccessVM>(await response.Content.ReadAsStringAsync());
-                    if (result.Id == null) return BadRequest("Upload Failed!");
-
                     invoice.GoogleDriveFileId = result.Id;
+
                     _invoiceService.UpdateInvoice(invoice);
                     _invoiceService.SaveChanges();
 
                     return Ok();
                 }
 
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        
+        [HttpGet("DownloadFileFromGoogleDrive")]
+        public async Task<ActionResult> DownloadFileFromGoogleDrive(Guid invoiceId)
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user.GoogleToken == null)
+                    return StatusCode(401, "Require Google Authorization!");
+                
+                var invoice = _invoiceService.GetInvoices(_
+                    => _.Id == invoiceId && _.StaffId.Equals(user.Staff.Id)).FirstOrDefault();
+                if (invoice == null) return NotFound();
+
+                string url = "https://www.googleapis.com/drive/v3/files/"
+                        + invoice.GoogleDriveFileId + "?"
+                        + "alt=media";
+
+                using (var httpClient = new HttpClient())
+                {
+                    httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + user.GoogleToken.Access_token);
+
+                    var response = await httpClient.GetAsync(url);
+                    try
+                    {
+                        response.EnsureSuccessStatusCode();
+                    }
+                    catch (Exception)
+                    {
+                        return BadRequest(await response.Content.ReadAsStringAsync());
+                    }
+
+                    return File(await response.Content.ReadAsByteArrayAsync(), "application/pdf", invoice.Enterprise + ".pdf");
+                }
             }
             catch (Exception e)
             {

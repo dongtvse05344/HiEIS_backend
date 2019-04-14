@@ -15,5 +15,6 @@ namespace HiEIS.Model
         public bool IsActive { get; set; }
 
         public virtual Staff Staff { get; set; }
+        public virtual GoogleToken GoogleToken { get; set; }
     }
 }
