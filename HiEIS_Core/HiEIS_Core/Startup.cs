@@ -9,6 +9,7 @@ using HiEIS.Data.Infrastructures;
 using HiEIS.Data.Repositories;
 using HiEIS.Model;
 using HiEIS.Service;
+using HiEIS_Core.Controllers;
 using HiEIS_Core.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -47,7 +48,11 @@ namespace HiEIS_Core
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-            
+
+            #region Call Orther Controller
+            services.AddTransient<GoogleTokenController, GoogleTokenController>();
+            #endregion
+
             #region DbContext
             // ===== Add our DbContext ========
             services.AddDbContext<HiEISDbContext>();

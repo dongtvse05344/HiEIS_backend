@@ -32,8 +32,9 @@ namespace HiEIS_Core.Controllers
         private readonly ICompanyService _companyService;
         private readonly IEmailService _mailService;
         private readonly ICustomerService _customerService;
+        private readonly GoogleTokenController _googleTokenController;
 
-        public InvoiceController(IInvoiceService invoiceService, UserManager<MyUser> userManager, IFileService fileService, ITemplateService templateService, IPdfService pdfService, IInvoiceItemService invoiceItemService, ICurrentSignService signService, ICompanyService companyService, IEmailService mailService, ICustomerService customerService)
+        public InvoiceController(IInvoiceService invoiceService, UserManager<MyUser> userManager, IFileService fileService, ITemplateService templateService, IPdfService pdfService, IInvoiceItemService invoiceItemService, ICurrentSignService signService, ICompanyService companyService, IEmailService mailService, ICustomerService customerService, GoogleTokenController googleTokenController)
         {
             _invoiceService = invoiceService;
             _userManager = userManager;
@@ -45,6 +46,7 @@ namespace HiEIS_Core.Controllers
             _companyService = companyService;
             _mailService = mailService;
             _customerService = customerService;
+            _googleTokenController = googleTokenController;
         }
 
         [Authorize]
@@ -431,49 +433,24 @@ namespace HiEIS_Core.Controllers
                 var invoice = _invoiceService.GetInvoices(_ 
                     => _.Id == model.InvoiceID && _.StaffId.Equals(user.Staff.Id)).FirstOrDefault();
                 if (invoice == null) return NotFound();
-                
+
+                var content = GetFileContent(invoice.FileUrl, invoice.Enterprise, model.GoogleDriveFolderId);
                 using (var httpClient = new HttpClient())
                 {
                     httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + user.GoogleToken.Access_token);
-                    
-                    ByteArrayContent fileContent;
-                    using (var stream = new FileStream(Path.Combine(Directory.GetCurrentDirectory(), invoice.FileUrl), FileMode.Open))
-                    {
-                        using (var binaryReader = new BinaryReader(stream))
-                        {
-                            fileContent = new ByteArrayContent(binaryReader.ReadBytes((int)stream.Length));
-                            fileContent.Headers.Add("Content-Type", "application/pdf");
-                            fileContent.Headers.Add("Content-Length", stream.Length.ToString());
-                        }
-                    }
-
-                    var googleDriveFileVM = new GoogleDriveUploadFileVM
-                    {
-                        name = invoice.Enterprise + ".pdf",
-                        title = invoice.Enterprise,
-                        parents = new List<string> { model.GoogleDriveFolderId }
-                    };
-                    StringContent fileInfoContent = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(googleDriveFileVM), Encoding.UTF8, "application/json");
-
-                    MultipartContent content = new MultipartContent("related", "HiEIS")
-                    {
-                        fileInfoContent,
-                        fileContent
-                    };
-                    /*
-                    content.Headers.Remove("Content-Type");
-                    content.Headers.TryAddWithoutValidation("Content-Type", "multipart/related; boundary=HiEIS");
-                    */
+                    //content.Headers.Remove("Content-Type");
+                    //content.Headers.TryAddWithoutValidation("Content-Type", "multipart/related; boundary=HiEIS");
                     
                     var response = await httpClient.PostAsync(url, content);
-                    try
+                    if (!response.IsSuccessStatusCode)
                     {
+                        httpClient.DefaultRequestHeaders.Remove("Authorization");
+                        httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _googleTokenController.RefreshGoogleToken(user.GoogleToken));
+
+                        response = await httpClient.PostAsync(url, content);
                         response.EnsureSuccessStatusCode();
                     }
-                    catch (Exception)
-                    {
-                        return BadRequest(await response.Content.ReadAsStringAsync());
-                    }
+
                     var result = Newtonsoft.Json.JsonConvert.DeserializeObject<GoogleDriveUploadFileSuccessVM>(await response.Content.ReadAsStringAsync());
                     invoice.GoogleDriveFileId = result.Id;
 
@@ -482,7 +459,6 @@ namespace HiEIS_Core.Controllers
 
                     return Ok();
                 }
-
             }
             catch (Exception e)
             {
@@ -528,6 +504,33 @@ namespace HiEIS_Core.Controllers
             {
                 return BadRequest(e.Message);
             }
+        }
+
+        private MultipartContent GetFileContent(string fileUrl, string fileName, string googleDriveFolderId)
+        {
+            ByteArrayContent fileContent;
+            using (var stream = new FileStream(Path.Combine(Directory.GetCurrentDirectory(), fileUrl), FileMode.Open))
+            {
+                using (var binaryReader = new BinaryReader(stream))
+                {
+                    fileContent = new ByteArrayContent(binaryReader.ReadBytes((int)stream.Length));
+                    fileContent.Headers.Add("Content-Type", "application/pdf");
+                    fileContent.Headers.Add("Content-Length", stream.Length.ToString());
+                }
+            }
+            var googleDriveFileVM = new GoogleDriveUploadFileVM
+            {
+                name = fileName + ".pdf",
+                title = fileName,
+                parents = new List<string> { googleDriveFolderId }
+            };
+            StringContent fileInfoContent = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(googleDriveFileVM), Encoding.UTF8, "application/json");
+
+            return new MultipartContent("related", "HiEIS")
+            {
+                fileInfoContent,
+                fileContent
+            };
         }
     }
 }

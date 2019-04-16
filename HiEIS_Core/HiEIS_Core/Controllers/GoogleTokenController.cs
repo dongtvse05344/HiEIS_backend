@@ -96,17 +96,15 @@ namespace HiEIS_Core.Controllers
                 return BadRequest(e.Message);
             }
         }
-
-        /*
-        [HttpPost("RefreshGoogleToken")]
-        public ActionResult Refresh(string refresh_token)
+        
+        public string RefreshGoogleToken(GoogleToken googleToken)
         {
             try
             {
                 string url = "https://www.googleapis.com/oauth2/v4/token";
                 var list = new List<KeyValuePair<string, string>>
                 {
-                    new KeyValuePair<string, string>("refresh_token", refresh_token),
+                    new KeyValuePair<string, string>("refresh_token", googleToken.Refresh_token),
                     new KeyValuePair<string, string>("client_id", "396730019122-1bqknv4qb2295opq30g5s0ffn46ojqdt.apps.googleusercontent.com"),
                     new KeyValuePair<string, string>("client_secret", "HhkMh7_F_T_HtJQW8G0ujl1o"),
                     new KeyValuePair<string, string>("grant_type", "refresh_token"),
@@ -117,15 +115,19 @@ namespace HiEIS_Core.Controllers
                     var content = new FormUrlEncodedContent(list);
                     var response = httpClient.PostAsync(url, content).Result;
                     var resContent = response.Content.ReadAsStringAsync().Result;
-                    var googleToken = Newtonsoft.Json.JsonConvert.DeserializeObject<GoogleToken>(resContent);
-                    return Ok(googleToken.Access_token);
+                    var googleTokenModel = Newtonsoft.Json.JsonConvert.DeserializeObject<GoogleTokenModel>(resContent);
+                    googleToken.Access_token = googleTokenModel.Access_token;
                 }
+
+                _googleTokenService.UpdateGoogleToken(googleToken);
+                _googleTokenService.SaveChanges();
+
+                return googleToken.Access_token;
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message);
+                throw e;
             }
         }
-        */
     }
 }
