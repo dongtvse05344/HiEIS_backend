@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace HiEIS_Core.Controllers
@@ -32,8 +33,9 @@ namespace HiEIS_Core.Controllers
         private readonly ICompanyService _companyService;
         private readonly IEmailService _mailService;
         private readonly ICustomerService _customerService;
+        private readonly GoogleTokenController _googleTokenController;
 
-        public InvoiceController(IInvoiceService invoiceService, UserManager<MyUser> userManager, IFileService fileService, ITemplateService templateService, IPdfService pdfService, IInvoiceItemService invoiceItemService, ICurrentSignService signService, ICompanyService companyService, IEmailService mailService, ICustomerService customerService)
+        public InvoiceController(IInvoiceService invoiceService, UserManager<MyUser> userManager, IFileService fileService, ITemplateService templateService, IPdfService pdfService, IInvoiceItemService invoiceItemService, ICurrentSignService signService, ICompanyService companyService, IEmailService mailService, ICustomerService customerService, GoogleTokenController googleTokenController)
         {
             _invoiceService = invoiceService;
             _userManager = userManager;
@@ -45,6 +47,7 @@ namespace HiEIS_Core.Controllers
             _companyService = companyService;
             _mailService = mailService;
             _customerService = customerService;
+            _googleTokenController = googleTokenController;
         }
 
         [Authorize]
@@ -388,6 +391,145 @@ namespace HiEIS_Core.Controllers
             return Ok();
         }
 
+        /*
+        [HttpPost("UploadFolder")]
+        public ActionResult UploadFolder([FromBody]string access_token)
+        {
+            try
+            {
+                string url = "https://www.googleapis.com/drive/v3/files";
+                
+                using (var httpClient = new HttpClient())
+                {
+                    httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + access_token);
+                    HttpContent content = new StringContent("{\"mimeType\": \"application/vnd.google-apps.folder\", \"name\": \"Invoices\"}", Encoding.UTF8, "application/json");
+                    var response = httpClient.PostAsync(url, content).Result;
 
+                    return Ok(response.Content.ReadAsStringAsync().Result);
+                }
+                
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        */
+
+        [Authorize(Roles = "AccountingManager")]
+        [HttpPost("UploadFile")]
+        public async Task<ActionResult> UploadFile([FromBody]InvoiceUploadFileVM model)
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user.GoogleToken == null)
+                    return StatusCode(401, "Require Google Authorization!");
+
+                string url = "https://www.googleapis.com/upload/drive/v3/files?" 
+                        + "uploadType=multipart&"
+                        + "fields=id";
+                var invoice = _invoiceService.GetInvoices(_ 
+                    => _.Id == model.InvoiceID && _.StaffId.Equals(user.Staff.Id)).FirstOrDefault();
+                if (invoice == null) return NotFound();
+
+                var content = GetFileContent(invoice.FileUrl, invoice.Enterprise, model.GoogleDriveFolderId);
+                using (var httpClient = new HttpClient())
+                {
+                    httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + user.GoogleToken.Access_token);
+                    //content.Headers.Remove("Content-Type");
+                    //content.Headers.TryAddWithoutValidation("Content-Type", "multipart/related; boundary=HiEIS");
+                    
+                    var response = await httpClient.PostAsync(url, content);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        httpClient.DefaultRequestHeaders.Remove("Authorization");
+                        httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _googleTokenController.RefreshGoogleToken(user.GoogleToken));
+
+                        response = await httpClient.PostAsync(url, content);
+                        response.EnsureSuccessStatusCode();
+                    }
+
+                    var result = Newtonsoft.Json.JsonConvert.DeserializeObject<GoogleDriveUploadFileSuccessVM>(await response.Content.ReadAsStringAsync());
+                    invoice.GoogleDriveFileId = result.Id;
+
+                    _invoiceService.UpdateInvoice(invoice);
+                    _invoiceService.SaveChanges();
+
+                    return Ok();
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        
+        [HttpGet("DownloadFileFromGoogleDrive")]
+        public async Task<ActionResult> DownloadFileFromGoogleDrive(Guid invoiceId)
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user.GoogleToken == null)
+                    return StatusCode(401, "Require Google Authorization!");
+                
+                var invoice = _invoiceService.GetInvoices(_
+                    => _.Id == invoiceId && _.StaffId.Equals(user.Staff.Id)).FirstOrDefault();
+                if (invoice == null) return NotFound();
+
+                string url = "https://www.googleapis.com/drive/v3/files/"
+                        + invoice.GoogleDriveFileId + "?"
+                        + "alt=media";
+
+                using (var httpClient = new HttpClient())
+                {
+                    httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + user.GoogleToken.Access_token);
+
+                    var response = await httpClient.GetAsync(url);
+                    try
+                    {
+                        response.EnsureSuccessStatusCode();
+                    }
+                    catch (Exception)
+                    {
+                        return BadRequest(await response.Content.ReadAsStringAsync());
+                    }
+
+                    return File(await response.Content.ReadAsByteArrayAsync(), "application/pdf", invoice.Enterprise + ".pdf");
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        private MultipartContent GetFileContent(string fileUrl, string fileName, string googleDriveFolderId)
+        {
+            ByteArrayContent fileContent;
+            using (var stream = new FileStream(Path.Combine(Directory.GetCurrentDirectory(), fileUrl), FileMode.Open))
+            {
+                using (var binaryReader = new BinaryReader(stream))
+                {
+                    fileContent = new ByteArrayContent(binaryReader.ReadBytes((int)stream.Length));
+                    fileContent.Headers.Add("Content-Type", "application/pdf");
+                    fileContent.Headers.Add("Content-Length", stream.Length.ToString());
+                }
+            }
+            var googleDriveFileVM = new GoogleDriveUploadFileVM
+            {
+                name = fileName + ".pdf",
+                title = fileName,
+                parents = new List<string> { googleDriveFolderId }
+            };
+            StringContent fileInfoContent = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(googleDriveFileVM), Encoding.UTF8, "application/json");
+
+            return new MultipartContent("related", "HiEIS")
+            {
+                fileInfoContent,
+                fileContent
+            };
+        }
     }
 }

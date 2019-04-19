@@ -90,4 +90,10 @@ namespace HiEIS_Core.ViewModels
 
         public List<InvoiceItemCM> InvoiceItemCMs { get; set; }
     }
+    
+    public class InvoiceUploadFileVM
+    {
+        public string GoogleDriveFolderId { get; set; }
+        public Guid InvoiceID { get; set; }
+    }
 }

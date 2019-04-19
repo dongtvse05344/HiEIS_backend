@@ -31,6 +31,7 @@ namespace HiEIS.Data
         public DbSet<Template> Templates { get; set; }
         //public DbSet<Transaction> Transactions { get; set; }
         public DbSet<CurrentSign> CurrentSigns { get; set; }
+        public DbSet<GoogleToken> GoogleTokens { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -143,6 +144,9 @@ namespace HiEIS.Data
             builder.Entity<MyUser>()
                 .HasOne(_ => _.Staff).WithOne(_ => _.MyUser)
                 .HasForeignKey<Staff>(_ => _.Id);
+            builder.Entity<MyUser>()
+                .HasOne(_ => _.GoogleToken).WithOne(_ => _.MyUser)
+                .HasForeignKey<GoogleToken>(_ => _.Id);
             #endregion
 
             #region Product
