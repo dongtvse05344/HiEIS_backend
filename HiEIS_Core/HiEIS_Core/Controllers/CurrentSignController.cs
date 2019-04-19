@@ -128,7 +128,7 @@ namespace HiEIS_Core.Controllers
                 if (currentSign.DateExpiry < DateTime.Now) return BadRequest("Mã đã hết hạn!");
 
                 var companyId = currentSign.CompanyId;
-                var invoices = _invoiceService.GetInvoices(_ => _.Template.CompanyId == companyId && _ .Type == (int)InvoiceType.Approve);
+                var invoices = _invoiceService.GetInvoices(_ => _.Template.CompanyId == companyId && _ .Type == (int)InvoiceType.New);
                 if (invoices == null) return NotFound();
 
                 CurrentSignVM result = new CurrentSignVM();

@@ -29,6 +29,7 @@ namespace HiEIS_Core.Utils
                                 .Map(dest => dest.CompanyId, src => src.Company.Id)
                                 .Map(dest => dest.Code, src => src.Code)
                                 ;
+            
         }
     }
 }

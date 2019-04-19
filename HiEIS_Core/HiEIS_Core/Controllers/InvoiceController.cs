@@ -7,6 +7,7 @@ using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -56,7 +57,7 @@ namespace HiEIS_Core.Controllers
 
                 var invoices = _invoiceService.GetInvoices(
                                                     _ => _.Enterprise.Contains(companyName)
-                                                &&  _.Staff.CompanyId.Equals(user.Staff.CompanyId));
+                                                && _.Staff.CompanyId.Equals(user.Staff.CompanyId));
                 if (fromDate != null)
                     invoices = invoices.Where(_ => _.DateCreated.Date >= fromDate.Value.Date);
                 if (toDate != null)
@@ -132,15 +133,10 @@ namespace HiEIS_Core.Controllers
 
                 invoice.Form = template.Form;
                 invoice.Serial = template.Serial;
-                if (invoice.Type == (int)InvoiceType.Approve)
-                {
-                    //Trang thai danh so
-                    invoice.Number = template.CurrentNo++.ToString(formatNumber);
-                }
-                else
-                {
-                    invoice.Type = (int)InvoiceType.New;
-                }
+                //Trang thai danh so
+                invoice.Number = template.CurrentNo++.ToString(formatNumber);
+                invoice.Type = (int)InvoiceType.New;
+
                 string fileName = _fileService.GenerateFileName("Files/" + user.Staff.CompanyId + "/Invoice/" + invoice.TaxNo + ".pdf");
 
                 invoice.FileUrl = _invoiceService.GenerateFinalPdf(fileName, invoice, template.FileUrl);
@@ -149,7 +145,7 @@ namespace HiEIS_Core.Controllers
                 _invoiceService.SaveChanges();
                 invoice.LockupCode = invoice.No.ToString("000000");
                 _invoiceService.SaveChanges();
-                CustomerCM customer = invoice.Adapt<CustomerCM>();
+                CustomerCM customer = model.Adapt<CustomerCM>();
                 Hangfire.BackgroundJob.Enqueue(() => AddOrUpdateCustomer(customer));
                 return StatusCode(201, invoice.Id);
             }
@@ -165,16 +161,19 @@ namespace HiEIS_Core.Controllers
         }
 
         [HttpPatch]
-        public void AddOrUpdateCustomer(CustomerCM customer)
+        public void AddOrUpdateCustomer(CustomerCM model)
         {
-            var customerDb = _customerService.GetCustomers().FirstOrDefault(_ => _.TaxNo.Equals(customer.TaxNo));
-            if(customerDb ==null)
+            var customerDb = _customerService.GetCustomers().FirstOrDefault(_ => _.TaxNo.Equals(model.TaxNo));
+            if (customerDb == null)
             {
-                _customerService.CreateCustomer(customer.Adapt<Customer>());
+                var customer = model.Adapt<Customer>();
+                customer.Emails = JsonConvert.SerializeObject(model.Email);
+                _customerService.CreateCustomer(customer);
             }
             else
             {
-                customerDb = customer.Adapt(customerDb);
+                customerDb = model.Adapt(customerDb);
+                customerDb.Emails = JsonConvert.SerializeObject(model.Email);
                 _customerService.UpdateCustomer(customerDb);
             }
             _customerService.SaveChanges();
@@ -245,7 +244,7 @@ namespace HiEIS_Core.Controllers
                 if (invoice == null) return NotFound();
                 var oldFile = invoice.FileUrl;
                 invoice.Type = (int)InvoiceType.Approve;
-                invoice.Number = invoice.Template.CurrentNo++.ToString(formatNumber);
+                //invoice.Number = invoice.Template.CurrentNo++.ToString(formatNumber);
 
                 string fileName = _fileService.GenerateFileName("Files/" + user.Staff.CompanyId + "/" + nameof(FileType.Invoice) + "/" + invoice.TaxNo + ".pdf");
                 invoice.FileUrl = _invoiceService.GenerateFinalPdf(fileName, invoice, invoice.Template.FileUrl);
@@ -361,7 +360,7 @@ namespace HiEIS_Core.Controllers
         {
             var currentCode = _signService.GetCurrentSigns(_ => _.Code.Equals(models.Code)).FirstOrDefault();
             if (currentCode == null) return BadRequest();
-           // string fileName = _fileService.GenerateFileName("Files/" + company.Id + "/Invoice/" + invoice.TaxNo + ".pdf");
+            // string fileName = _fileService.GenerateFileName("Files/" + company.Id + "/Invoice/" + invoice.TaxNo + ".pdf");
             foreach (var item in models.FileContents)
             {
                 string newUrl = null;
@@ -370,9 +369,9 @@ namespace HiEIS_Core.Controllers
                     var invoiceId = Path.GetFileNameWithoutExtension(item.FileName);
                     var invoice = _invoiceService.GetInvoice(Guid.Parse(invoiceId));
                     if (invoice == null) continue;
-                    string fileName = _fileService.GenerateFileName(invoice.LockupCode +".pdf");
+                    string fileName = _fileService.GenerateFileName(invoice.LockupCode + ".pdf");
                     var oldUrl = invoice.FileUrl;
-                    invoice.FileUrl = _fileService.SaveFile(currentCode.CompanyId.ToString(), nameof(FileType.Invoice), item,fileName).Result;
+                    invoice.FileUrl = _fileService.SaveFile(currentCode.CompanyId.ToString(), nameof(FileType.Invoice), item, fileName).Result;
                     invoice.Type = (int)InvoiceType.Signed;
                     newUrl = invoice.FileUrl;
                     _invoiceService.SaveChanges();
@@ -389,6 +388,6 @@ namespace HiEIS_Core.Controllers
             return Ok();
         }
 
-        
+
     }
 }

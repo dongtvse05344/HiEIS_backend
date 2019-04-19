@@ -5,6 +5,7 @@ using HiEIS_Core.Utils;
 using HiEIS_Core.ViewModels;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using NSoup;
 using NSoup.Nodes;
 using NSoup.Parse;
@@ -27,11 +28,11 @@ namespace HiEIS_Core.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetCustomers(int index = 1, int pageSize = 5, string searchName = "")
+        public ActionResult GetCustomers(int index = 1, int pageSize = 5, string nameSearch = "")
         {
-            searchName = searchName == null ? "" : searchName;
+            nameSearch = nameSearch == null ? "" : nameSearch;
 
-            var customers = _customerService.GetCustomers(_ => _.Name.ToLower().Equals(searchName.ToLower()));
+            var customers = _customerService.GetCustomers(_ => _.Enterprise.ToLower().Contains(nameSearch.ToLower()));
             var result = customers.ToPageList<CustomerVM, Customer>(index, pageSize);
 
             return Ok(result);
@@ -117,14 +118,16 @@ namespace HiEIS_Core.Controllers
         [HttpGet("GetEnterprise")]
         public ActionResult GetEnterpriseInfoByTaxNo(string taxNo)
         {
-            var company = _customerService.GetCustomers().FirstOrDefault(_ => _.TaxNo.Equals(taxNo));
-            if(company == null)
+            var customer = _customerService.GetCustomers().FirstOrDefault(_ => _.TaxNo.Equals(taxNo));
+            if(customer == null)
             {
                 return Ok(this.GetDataFromOutSide(taxNo));
             }
             else
             {
-                return Ok(company.Adapt<CompanyVM>());
+                var result = customer.Adapt<CompanyVM>();
+                result.Email = JsonConvert.DeserializeObject<string[]>(customer.Emails);
+                return Ok(result);
             }
         }
     }

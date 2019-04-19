@@ -15,7 +15,7 @@ namespace HiEIS.Model
         public string Fax { get; set; }
         public string Bank { get; set; }
         public string BankAccountNumber { get; set; }
-        public string Email { get; set; }
+        public string Emails { get; set; }
 
         //public virtual ICollection<ProformaInvoice> ProformaInvoices { get; set; }
         //public virtual ICollection<CompanyCustomer> CompanyCustomers { get; set; }

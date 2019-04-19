@@ -35,7 +35,7 @@ namespace HiEIS_Core.ViewModels
         //Thông tin khách hàng
         public string Name { get; set; }
         public string Enterprise { get; set; }
-        public string Mail { get; set; }
+        public string[] Email { get; set; }
         public string TaxNo { get; set; }
         public string Address { get; set; }
         public string Tel { get; set; }
